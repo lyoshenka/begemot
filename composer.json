@@ -1,10 +1,12 @@
 {
-    "name": "lyoshenka/begemot",
-    "authors": [
-        {
-            "name": "Alex Grintsvayg",
-            "email": "grin@grin.io"
-        }
-    ],
-    "require": {}
+  "name": "lyoshenka/begemot",
+  "authors": [
+    {
+      "name": "Alex Grintsvayg",
+      "email": "grin@grin.io"
+    }
+  ],
+  "require": {
+    "silex/silex": "~1.2"
+  }
 }
