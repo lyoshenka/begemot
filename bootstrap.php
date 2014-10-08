@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Silex\Application(); 
 $app['debug'] = true;
 
+require_once __DIR__.'/auth.php';
+require_once __DIR__.'/db.php';
+
 function parseData($data) {
   $events = json_decode($data, true);
   foreach($events as $event)
@@ -18,10 +21,9 @@ function parseData($data) {
 
 function post($from, $subject, $text) {
   $filename = date('Y-m-d') . '-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($subject)) . '.md';
-  file_put_contents(__DIR__.'/posts/'.$filename, $text);
 
   $client = new Github\Client();
-  $client->authenticate('e72e2fa8f8e8640ead4dbf35a1bac1bb99cd3652', null, Github\Client::AUTH_HTTP_TOKEN);
+  $client->authenticate(GITHUB_API_TOKEN, null, Github\Client::AUTH_HTTP_TOKEN);
   $committer = ['name' => 'Begemot', 'email' => $from];
 
   try 
@@ -44,7 +46,7 @@ function post($from, $subject, $text) {
 }
 
 function respond($address, $text) {
-  $mandrill = new Mandrill('1U8r64YW1GYJ2aZmNrcGJA'); // TODO: change this before going live
+  $mandrill = new Mandrill(MANDRILL_API_KEY); // TODO: change this before going live
   $message = [
     'to' => [
       ['type' => 'to', 'email' => $address]

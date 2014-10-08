@@ -6,8 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 $app->get('/', function() use($app) {
-  $files = glob(__DIR__.'/../posts/*');
-  return new Response('<h1>Begemot</h1><br>'.join('<br>', $files));
+  return new Response('Begemot');
 });
 
 $app->match('/mandrill_hook_endpoint', function(Request $request) use($app) {
@@ -18,11 +17,8 @@ $app->match('/mandrill_hook_endpoint', function(Request $request) use($app) {
   $data = $request->get('mandrill_events');
   if (!$data)
   {
-    return new Response('no data');
+    return new Response('mandrill_events is empty', 422);
   }
-
-  $filename = date('Y-m-d_H:i:s').'.json';
-  file_put_contents(__DIR__.'/../requests/'.$filename, $data);
 
   parseData($data);
 
