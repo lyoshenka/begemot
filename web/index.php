@@ -15,6 +15,26 @@ $app->get('/', function() use($app) {
 function post($from, $subject, $text) {
   $filename = date('Y-m-d') . '-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($subject) . '.md');
   file_put_contents(__DIR__.'/../posts/'.$filename, $text);
+  respond($from, $text);
+}
+
+function respond($address, $text) {
+  $mandrill = new Mandrill('1U8r64YW1GYJ2aZmNrcGJA'); // TODO: change this before going live
+  $message = [
+    'to' => [$address],
+    'subject' => 'Post Received',
+    'text' => "We got your post. Here's the text:\n\n$text"
+  ];
+
+  try {
+    $result = $mandrill->messages->send($message);
+  }
+  catch(Mandrill_Error $e) {
+    // Mandrill errors are thrown as exceptions
+    echo 'A mandrill error occurred: ' . get_class($e) . ' - ' . $e->getMessage();
+    // A mandrill error occurred: Mandrill_Unknown_Subaccount - No subaccount exists with the id 'customer-123'
+    throw $e;
+  }
 }
 
 $app->match('/mandrill_hook_endpoint', function(Request $request) use($app) {
@@ -34,7 +54,7 @@ $app->match('/mandrill_hook_endpoint', function(Request $request) use($app) {
   $events = json_decode($data, true);
   foreach($events as $event)
   {
-    post($event['from_email'], $event['subject'], $event['text']);
+    post($event['msg']['from_email'], $event['msg']['subject'], $event['msg']['text']);
   }
 
   return new Response('ok');
