@@ -19,7 +19,7 @@ class DoEmailCommand extends \Knp\Command\Command {
       ->addArgument('path', \Symfony\Component\Console\Input\InputArgument::REQUIRED, 'Path to request data')
     ;
   }
-  protected function execute(Symfony\Component\Console\Input\ArgvInput $input, Symfony\Component\Console\Output\ConsoleOutput $output) {
+  protected function execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output) {
     $path = $input->getArgument('path');
     if ($path[0] != '/')
     {
@@ -38,7 +38,7 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
       ->setDescription("Initialize the database")
     ;
   }
-  protected function execute(Symfony\Component\Console\Input\ArgvInput $input, Symfony\Component\Console\Output\ConsoleOutput $output) {
+  protected function execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output) {
     $app = $this->getSilexApplication();
     $pdo = $app['pdo'];
 
@@ -49,8 +49,11 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
     $pdo->exec('DROP TABLE IF EXISTS user');
     $pdo->exec("CREATE TABLE `user` (
         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `github_token` varchar(100),
+        `github_token_scope` varchar (100),
         `created_at` datetime NOT NULL,
-        PRIMARY KEY (`id`)
+        PRIMARY KEY (`id`),
+        UNIQUE KEY github_token_idx (github_token)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8"
     );
 

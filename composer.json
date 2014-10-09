@@ -10,6 +10,10 @@
     "silex/silex": "~1.2",
     "mandrill/mandrill": "1.0.*",
     "knplabs/github-api": "~1.2",
-    "knplabs/console-service-provider": "dev-master"
+    "knplabs/console-service-provider": "dev-master",
+    "symfony/validator": "~2.3",
+    "twig/twig": ">=1.8,<2.0-dev",
+    "symfony/twig-bridge": "~2.3",
+    "guzzlehttp/guzzle": "4.*"
   }
 }

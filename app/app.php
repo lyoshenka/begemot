@@ -1,11 +1,11 @@
 <?php
 
 class MyApp extends Silex\Application {
-  use Application\UrlGeneratorTrait;
-  // use Application\MonologTrait;
-  // use Application\TwigTrait;
-  // use Application\SecurityTrait;
-  // use Application\FormTrait;
-  // use Application\SwiftmailerTrait;
-  // use Application\TranslationTrait;
+  use Silex\Application\UrlGeneratorTrait;
+  use Silex\Application\TwigTrait;
+  // use Silex\Application\MonologTrait;
+  // use Silex\Application\SecurityTrait;
+  // use Silex\Application\FormTrait;
+  // use Silex\Application\SwiftmailerTrait;
+  // use Silex\Application\TranslationTrait;
 }
