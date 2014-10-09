@@ -49,6 +49,7 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
     $pdo->exec('DROP TABLE IF EXISTS user');
     $pdo->exec("CREATE TABLE `user` (
         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime NOT NULL,
         PRIMARY KEY (`id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8"
     );
@@ -72,7 +73,7 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
 
     $pdo->exec('DROP TABLE IF EXISTS session');
     $pdo->exec("CREATE TABLE `session` (
-        `id` VARCHAR(32) NOT NULL,
+        `id` VARCHAR(40) NOT NULL,
         `time` INT(10) UNSIGNED NOT NULL,
         `value` text,
         PRIMARY KEY (`id`)
@@ -82,7 +83,7 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
 }
 
 
-$console = $app["console"];
+$console = $app['console'];
 $console->add(new DoEmailCommand());
 $console->add(new InitializeDatabaseCommand());
 $console->run();
