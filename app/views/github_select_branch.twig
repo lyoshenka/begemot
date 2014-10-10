@@ -1,0 +1,23 @@
+{% extends "layout.twig" %}
+
+{% block body %}
+  <h1>Select Branch</h1>
+
+  {% if errors.count() %}
+    {% for error in errors %}
+      <div class="form-error" style="color:red;">
+        {{ error }}  
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="POST" action="{{ app.path('github_select_branch') }}">
+    <label for="branch">Choose the branch where your posts will go</label>
+    <select id="branch" name="branch">
+      {% for branch in branches %}
+        <option value="{{ branch.name }}" {% if selectedBranch == branch.name %}selected{% endif %}>{{ branch.name }}</option>
+      {% endfor %}
+    </select>
+    <input type="submit" />
+  </form>
+{% endblock %}

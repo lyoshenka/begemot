@@ -6,6 +6,12 @@
       "email": "grin@grin.io"
     }
   ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/Northys/CSS-Inliner"
+    }
+  ],
   "require": {
     "silex/silex": "~1.2",
     "mandrill/mandrill": "1.0.*",
@@ -14,6 +20,8 @@
     "symfony/validator": "~2.3",
     "twig/twig": ">=1.8,<2.0-dev",
     "symfony/twig-bridge": "~2.3",
-    "guzzlehttp/guzzle": "4.*"
+    "guzzlehttp/guzzle": "4.*",
+    "northys/css-inliner": "master@dev",
+    "monolog/monolog": ">=1.0.0"
   }
 }

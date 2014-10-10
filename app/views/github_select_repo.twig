@@ -1,0 +1,24 @@
+{% extends "layout.twig" %}
+
+{% block body %}
+  <h1>Select Repository</h1>
+
+  {% if errors.count() %}
+    {% for error in errors %}
+      <div class="form-error" style="color:red;">
+        {{ error }}  
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="POST" action="{{ app.path('github_select_repo') }}">
+    <label for="repo">Choose the repository where your blog lives</label>
+    <select id="repo" name="repo">
+      <option value=""></option>
+      {% for repo in repos %}
+        <option value="{{ repo.full_name }}" {% if selectedRepo == repo.full_name %}selected{% endif %}>{{ repo.full_name }} - {{ repo.description }}</option>
+      {% endfor %}
+    </select>
+    <input type="submit" />
+  </form>
+{% endblock %}

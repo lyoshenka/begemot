@@ -1,0 +1,19 @@
+{% extends "layout.twig" %}
+
+{% block body %}
+  <h1>Enter Directory</h1>
+
+  {% if errors.count() %}
+    {% for error in errors %}
+      <div class="form-error" style="color:red;">
+        {{ error }}  
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="POST" action="{{ app.path('github_select_path') }}">
+    <label for="path">Enter the directory where your posts will be saved.</label>
+    <input type="text" name="path" value="{{ selectedPath }}" />
+    <input type="submit" />
+  </form>
+{% endblock %}

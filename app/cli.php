@@ -51,6 +51,9 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         `github_token` varchar(100),
         `github_token_scope` varchar (100),
+        `github_repo` varchar(100),
+        `github_branch` varchar(100),
+        `posts_path` varchar(255),
         `created_at` datetime NOT NULL,
         PRIMARY KEY (`id`),
         UNIQUE KEY github_token_idx (github_token)

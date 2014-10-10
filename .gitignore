@@ -1,3 +1,4 @@
 /vendor/
 /app/config.php
 /composer.phar
+/dev.log

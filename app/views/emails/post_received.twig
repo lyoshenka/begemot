@@ -1,0 +1,6 @@
+{% extends "emails/action.twig" %}
+
+{% block title %}Post Published - {{ parent() }}{% endblock %}
+{% block text %}{{ title }} has been published. Rock on!{% endblock %}
+{% block signature %}{{ parent() }}{% endblock %}
+{% block footer %}{{ parent() }}{% endblock %}

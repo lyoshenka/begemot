@@ -4,13 +4,21 @@ initServices($app);
 function initServices($app) {
 
   /*------------------------------*\
+              CONFIG
+  \*------------------------------*/
+  $app['config.system_email'] = 'begemot@begemot.grin.io';
+  $app['config.post_email'] = 'post@begemot.grin.io';
+  $app['config.support_email'] = 'grin@grin.io';
+
+
+  /*------------------------------*\
               ROUTING
   \*------------------------------*/
   $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
 
 
   /*------------------------------*\
-              VALIDATION
+              VALIDATION 
   \*------------------------------*/
   $app->register(new Silex\Provider\ValidatorServiceProvider());
 
@@ -59,13 +67,16 @@ function initServices($app) {
   /*------------------------------*\
               GITHUB
   \*------------------------------*/
-  $app['github.token'] = GITHUB_API_TOKEN;
   $app['github.app_client_id'] = GITHUB_APP_CLIENT_ID;
   $app['github.app_client_secret'] = GITHUB_APP_CLIENT_SECRET;
   $app['github'] = $app->share(function($app) {
-    $client = new Github\Client();
-    $client->authenticate($app['github.token'], null, Github\Client::AUTH_HTTP_TOKEN);
-    return $client;
+    $gh = new Github\Client();
+    if ($app['user'] && $app['user']['github_token'])
+    {
+      $gh->authenticate($app['user']['github_token'], null, Github\Client::AUTH_HTTP_TOKEN);
+      $app->log('Authenticated with GitHub');
+    }
+    return $gh;
   });
 
 
@@ -89,6 +100,13 @@ function initServices($app) {
     ]
   ]);
 
+
+  /*------------------------------*\
+              LOGGING
+  \*------------------------------*/
+  $app->register(new Silex\Provider\MonologServiceProvider(), [
+    'monolog.logfile' => __DIR__.'/../dev.log',
+  ]);
 
   /*------------------------------*\
               USER

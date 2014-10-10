@@ -1,0 +1,18 @@
+{% extends "layout.twig" %}
+
+{% block body %}
+  <h1>Settings</h1>
+
+  <div>
+    Send your posts to <strong>{{ app['config.post_email'] }}</strong>
+  </div>
+  <div>
+    Repository: {{ user.github_repo }}
+  </div>
+  <div>
+    Branch: {{ user.github_branch}}
+  </div>
+  <div>
+    Directory: {{ user.posts_path }}
+  </div>
+{% endblock %}
