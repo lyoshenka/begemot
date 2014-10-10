@@ -18,7 +18,7 @@ function initServices($app) {
 
 
   /*------------------------------*\
-              VALIDATION 
+              VALIDATION
   \*------------------------------*/
   $app->register(new Silex\Provider\ValidatorServiceProvider());
 
@@ -89,6 +89,16 @@ function initServices($app) {
     return new Mandrill($app['mandrill.token']);
   });
 
+
+  /*------------------------------*\
+              CSS INLINER
+  \*------------------------------*/
+
+  $app['css_inliner'] = $app->share(function($app) {
+    $inliner = new Northys\CSSInliner\CSSInliner();
+    $inliner->addCSS(__DIR__ . '/views/emails/email_styles.css');
+    return $inliner;
+  });
 
   /*------------------------------*\
               TWIG

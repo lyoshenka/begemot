@@ -1,7 +1,9 @@
 {% extends "emails/action.twig" %}
 
 {% block title %}{{ parent() }}{% endblock %}
-{% block text %}Login to start blogging via email.{% endblock %}
+{% block text %}
+  {% if newAccount %}Login to start blogging via email.{% endif %}
+{% endblock %}
 {% block linkurl %}{{ url }}{% endblock %}
 {% block linktext %}Login{% endblock %}
 {% block signature %}{{ parent() }}{% endblock %}

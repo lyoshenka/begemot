@@ -8,4 +8,10 @@ class MyApp extends Silex\Application {
   // use Silex\Application\FormTrait;
   // use Silex\Application\SwiftmailerTrait;
   // use Silex\Application\TranslationTrait;
+
+  function forward($path, $requestType = 'GET')
+  {
+    $subReq = Symfony\Component\HttpFoundation\Request::create($path, $requestType);
+    return $this->handle($subReq, Symfony\Component\HttpKernel\HttpKernelInterface::SUB_REQUEST);
+  }
 }
