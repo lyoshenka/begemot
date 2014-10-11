@@ -2,3 +2,4 @@
 /app/config.php
 /composer.phar
 /dev.log
+/web/css/*

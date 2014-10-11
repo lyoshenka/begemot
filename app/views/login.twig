@@ -1,4 +1,4 @@
-{% extends "layout.twig" %}
+{% extends "base.twig" %}
 
 {% block body %}
   <h1>Login</h1>
@@ -11,7 +11,7 @@
     {% if errors.count() %}
       {% for error in errors %}
         <div class="form-error" style="color:red;">
-          {{ error }}  
+          {{ error }}
         </div>
       {% endfor %}
     {% endif %}

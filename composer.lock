@@ -4,8 +4,53 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "77b17bb8a7865f978e055278b00ea7a6",
+    "hash": "4dae6876e9e3fc2b070eb331b7191a5c",
     "packages": [
+        {
+            "name": "darklow/ff-silex-less-provider",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/darklow/ff-silex-less-provider.git",
+                "reference": "e9b4c1f431f0a8f051c7e7d0fd6037b82c61024f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/darklow/ff-silex-less-provider/zipball/e9b4c1f431f0a8f051c7e7d0fd6037b82c61024f",
+                "reference": "e9b4c1f431f0a8f051c7e7d0fd6037b82c61024f",
+                "shasum": ""
+            },
+            "require": {
+                "leafo/lessphp": "~0.4",
+                "php": ">=5.3.0",
+                "silex/silex": "~1.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "FF": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kaspars Sprogis",
+                    "email": "darklow@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Simple less php service provider for Silex",
+            "keywords": [
+                "less",
+                "lessphp",
+                "provider",
+                "silex"
+            ],
+            "time": "2013-11-25 07:15:51"
+        },
         {
             "name": "guzzle/guzzle",
             "version": "v3.9.2",
@@ -318,6 +363,47 @@
                 "github"
             ],
             "time": "2014-09-23 05:58:10"
+        },
+        {
+            "name": "leafo/lessphp",
+            "version": "v0.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/leafo/lessphp.git",
+                "reference": "51f3f06f0fe78a722dabfd14578444bdd078d9de"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/leafo/lessphp/zipball/51f3f06f0fe78a722dabfd14578444bdd078d9de",
+                "reference": "51f3f06f0fe78a722dabfd14578444bdd078d9de",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.3-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "lessc.inc.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT",
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Leaf Corcoran",
+                    "email": "leafot@gmail.com",
+                    "homepage": "http://leafo.net"
+                }
+            ],
+            "description": "lessphp is a compiler for LESS written in PHP.",
+            "homepage": "http://leafo.net/lessphp/",
+            "time": "2013-08-09 17:09:19"
         },
         {
             "name": "mandrill/mandrill",
@@ -1399,16 +1485,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.16.0",
+            "version": "v1.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/Twig.git",
-                "reference": "8ce37115802e257a984a82d38254884085060024"
+                "reference": "7c4c01dcf578523cfcddf383641a4f12790270ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Twig/zipball/8ce37115802e257a984a82d38254884085060024",
-                "reference": "8ce37115802e257a984a82d38254884085060024",
+                "url": "https://api.github.com/repos/fabpot/Twig/zipball/7c4c01dcf578523cfcddf383641a4f12790270ec",
+                "reference": "7c4c01dcf578523cfcddf383641a4f12790270ec",
                 "shasum": ""
             },
             "require": {
@@ -1452,7 +1538,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2014-07-05 12:19:05"
+            "time": "2014-10-10 14:09:53"
         }
     ],
     "packages-dev": [],
@@ -1460,7 +1546,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "knplabs/console-service-provider": 20,
-        "northys/css-inliner": 20
+        "northys/css-inliner": 20,
+        "darklow/ff-silex-less-provider": 20
     },
     "prefer-stable": false,
     "platform": [],

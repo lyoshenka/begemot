@@ -22,10 +22,7 @@ function initRoutes($app) {
         new Assert\NotBlank(['message' => 'Please enter your email.']),
         new Assert\Email(),
         new Assert\Callback(function($email, Symfony\Component\Validator\ExecutionContextInterface $context) use($app) {
-          $q = $app['pdo']->prepare('SELECT count(*) as has_one FROM email e WHERE e.email = :email LIMIT 1');
-          $q->bindValue(':email', $email);
-          $q->execute();
-          $result = $q->fetch(PDO::FETCH_ASSOC);
+          $result = $app['pdo']->fetchOne('SELECT count(*) as has_one FROM email e WHERE e.email = ? LIMIT 1', $email);
           if ($result && $result['has_one'])
           {
             $context->addViolationAt('email','An account already exists for this email. Please log in or use a different email address.');
@@ -42,10 +39,13 @@ function initRoutes($app) {
       }
 
       $app['pdo']->beginTransaction();
-      $app['pdo']->prepare('INSERT INTO user SET created_at = ?')->execute([date('Y-m-d H:i:s')]);
+      $app['pdo']->execute('INSERT INTO user SET created_at = ?', date('Y-m-d H:i:s'));
       $userId = $app['pdo']->lastInsertId();
-      $app['pdo']->prepare('INSERT INTO email SET user_id = ?, email = ?, is_primary = 1')->execute([$userId, $email]);
+      $app['pdo']->execute('INSERT INTO email SET user_id = ?, email = ?, is_primary = 1', [$userId, $email]);
       $app['pdo']->commit();
+
+
+      $hash = $app['create_onetime_login']($userId);
 
       $message = [
         'to' => [
@@ -53,7 +53,7 @@ function initRoutes($app) {
         ],
         'subject' => 'Welcome to Begemot',
         'html' => $app['css_inliner']->render($app['twig']->render('emails/login.twig', [
-          'url' => $app->url('login_with_hash', ['hash' => 'abcd']),
+          'url' => $app->url('login_with_hash', ['hash' => $hash]),
           'newAccount' => true
         ])),
         'from_email' => $app['config.system_email'],
@@ -107,10 +107,7 @@ function initRoutes($app) {
 
       if (!$errors->count())
       {
-        $stmt = $app['pdo']->prepare('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = :email LIMIT 1');
-        $stmt->bindValue(':email', $email);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ? LIMIT 1', $email);
         if (!$user)
         {
           $errors->add(new Symfony\Component\Validator\ConstraintViolation(
@@ -122,11 +119,7 @@ function initRoutes($app) {
 
       if (!$errors->count())
       {
-        $hash = sha1(time().'mumb0jum7bo');
-        $q = $app['pdo']->prepare('INSERT INTO onetime_login SET hash = :hash, user_id = :userId, created_at = NOW()');
-        $q->bindValue(':hash', $hash);
-        $q->bindValue(':userId', $user['id']);
-        $q->execute();
+        $hash = $app['create_onetime_login']($user['id']);
 
         $message = [
           'to' => [
@@ -155,21 +148,33 @@ function initRoutes($app) {
 
 
   $app->get('/login/{hash}', function($hash) use($app) {
-    $stmt = $app['pdo']->prepare('SELECT u.* FROM user u INNER JOIN onetime_login o ON u.id = o.user_id AND o.hash = :hash AND o.created_at > SUBTIME(NOW(), "00:30:00") LIMIT 1');
-    $stmt->bindValue(':hash', $hash);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $app['pdo']->fetchOne(
+      'SELECT u.* FROM user u INNER JOIN onetime_login o ON u.id = o.user_id AND o.hash = ? AND o.created_at > SUBTIME(NOW(), "00:30:00") LIMIT 1', $hash
+    );
 
     if ($user)
     {
       $app['session']->set('user_id', $user['id']);
+      $app['log_event']('user.login', null, $user['id']);
+      $app['session']->save();
       return $app->redirect($app->path('app'));
     }
+
+    $app['session']->set('user_id', null); // if they were logged in as someone else, log them out just in case
 
     return new Response('This login link is invalid or it has expired. Please <a href="' . $app->path('login') . '">click here</a> to try logging in again.');
 
   })
   ->bind('login_with_hash');
+
+
+
+  $app->get('/logout', function() use($app) {
+    $app['session']->set('user_id', null);
+    $app['session']->save();
+    return $app->redirect($app->path('home'));
+  })
+  ->bind('logout');
 
 
 
@@ -199,6 +204,8 @@ function initRoutes($app) {
       return $app->forward($app->path('github_select_path'));
     }
 
+    $event = $app['pdo'];
+
     return $app['twig']->render('app.twig', ['user' => $app['user']]);
   })->bind('app');
 
@@ -225,10 +232,7 @@ function initRoutes($app) {
 
       $app->log('got email from ' . $from);
 
-      $stmt = $app['pdo']->prepare('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = :email');
-      $stmt->bindValue(':email', $from);
-      $stmt->execute();
-      $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+      $stmt = $app['pdo']->fetchAssoc('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ?', $from) ?: null;
 
       if (!$user)
       {
@@ -260,11 +264,11 @@ function initRoutes($app) {
           $githubUsername, $repo, $user['posts_path'].'/'.$filename, trim($text), 'post via begemot: '.$subject, $user['github_branch'], $committer
         );
         $app->log('Successfully created post');
+        $app['log_event']('post.publish', $subject, $user['id']);
         $message['subject'] = 'Post Published';
         $message['html'] = $app['css_inliner']->render(
           $app['twig']->render('emails/post_received.twig', ['title' => $subject])
         );
-
       }
       catch (Github\Exception\RuntimeException $e)
       {

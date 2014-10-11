@@ -1,14 +1,14 @@
-{% extends "layout.twig" %}
+{% extends "base.twig" %}
 
 {% block body %}
   <h1>Begemot - Jekyll by Email</h1>
 
   {% for flashMessage in app.session.flashbag.get('form_error') %}
     <div class="form-error" style="color:red;">
-      {{ flashMessage }}  
+      {{ flashMessage }}
     </div>
   {% endfor %}
-  
+
   <form method="POST" action="{{ app.path('home') }}">
     <input name="email" type="email" placeholder="Email"/>
     <input type="submit" />

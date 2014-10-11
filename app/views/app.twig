@@ -1,4 +1,4 @@
-{% extends "layout.twig" %}
+{% extends "base.twig" %}
 
 {% block body %}
   <h1>Settings</h1>
@@ -17,5 +17,8 @@
   </div>
   <div>
     <a href="{{ path('github_select_repo') }}">Edit</a>
+  </div>
+  <div>
+    <a href="{{ path('logout') }}">Logout</a>
   </div>
 {% endblock %}

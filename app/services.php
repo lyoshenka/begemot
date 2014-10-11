@@ -27,13 +27,15 @@ function initServices($app) {
               DATABASE
   \*------------------------------*/
 
+  require_once __DIR__.'/db.php';
+
   $app['pdo.db'] = MYSQL_DB;
   $app['pdo.host'] = MYSQL_HOST;
   $app['pdo.user'] = MYSQL_USER;
   $app['pdo.pass'] = MYSQL_PASS;
 
   $app['pdo'] = $app->share(function ($app) {
-    return new PDO("mysql:host={$app['pdo.host']};dbname={$app['pdo.db']};charset=UTF8", $app['pdo.user'], $app['pdo.pass'], [
+    return new myPDO("mysql:host={$app['pdo.host']};dbname={$app['pdo.db']};charset=UTF8", $app['pdo.user'], $app['pdo.pass'], [
       PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
       PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
@@ -118,17 +120,44 @@ function initServices($app) {
     'monolog.logfile' => __DIR__.'/../dev.log',
   ]);
 
+
   /*------------------------------*\
               USER
   \*------------------------------*/
   $app['user'] = $app->share(function($app) {
-    if (!$app['session']->get('user_id')) {
-      return null;
-    }
-
-    $stmt = $app['pdo']->prepare('SELECT * FROM user WHERE id = :id');
-    $stmt->bindValue(':id', $app['session']->get('user_id'));
-    $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $app['session']->get('user_id') ?
+           ($app['pdo']->fetchOne('SELECT * FROM user WHERE id = ?', $app['session']->get('user_id')) ?: null) :
+           null;
   });
+
+
+  /*------------------------------*\
+              EVENT LOGGER
+  \*------------------------------*/
+  $app['log_event'] = $app->protect(function($type, $description, $userId) use($app) {
+    $stmt = $app['pdo']->execute(
+      'INSERT INTO event SET user_id = ?, type = ?, description = ?, created_at = NOW()',
+      [$userId, $type, $description]
+    );
+  });
+
+
+  /*------------------------------*\
+              LOGIN HASH
+  \*------------------------------*/
+  $app['create_onetime_login'] = $app->protect(function($userId) use($app) {
+    $hash = sha1(time().'mumb0jum7bo');
+    $app['pdo']->execute('INSERT INTO onetime_login SET hash = ?, user_id = ?, created_at = NOW()', [$hash,$userId]);
+    return $hash;
+  });
+
+
+  /*------------------------------*\
+              LESS
+  \*------------------------------*/
+  $app->register(new FF\ServiceProvider\LessServiceProvider(), [
+    'less.sources'     => [__DIR__.'/less/style.less'], // specify one or serveral .less files
+    'less.target'      => __DIR__.'/../web/css/style.css', // specify .css target file
+//    'less.target_mode' => 0775, // Optional
+  ]);
 }

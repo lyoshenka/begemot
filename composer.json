@@ -22,6 +22,7 @@
     "symfony/twig-bridge": "~2.3",
     "guzzlehttp/guzzle": "4.*",
     "northys/css-inliner": "master@dev",
-    "monolog/monolog": ">=1.0.0"
+    "monolog/monolog": ">=1.0.0",
+    "darklow/ff-silex-less-provider": "master@dev"
   }
 }

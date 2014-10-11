@@ -80,6 +80,22 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
         CONSTRAINT `onetime_login_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8"
     );
+
+
+    $output->writeln('creating event table');
+    $pdo->exec('DROP TABLE IF EXISTS event');
+    $pdo->exec("CREATE TABLE `event` (
+        `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
+        `user_id` bigint(11) unsigned,
+        `created_at` DATETIME NOT NULL,
+        `type` varchar(40) NOT NULL,
+        `description` varchar(255),
+        PRIMARY KEY (`id`),
+        KEY `user_id_idx` (`user_id`),
+        CONSTRAINT `event_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8"
+    );
+
   }
 }
 
