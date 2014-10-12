@@ -1,21 +1,24 @@
 {% extends "base.twig" %}
 
 {% block body %}
-  <h1>Begemot - Jekyll by Email</h1>
 
-  {% for flashMessage in app.session.flashbag.get('form_error') %}
-    <div class="form-error" style="color:red;">
-      {{ flashMessage }}
-    </div>
-  {% endfor %}
+  <p class="lead">
+    Post to your Jekyll blog just by sending an email.
+  </p>
+
+  {% include "partials/form_errors.twig" with {'errors': errors} %}
 
   <form method="POST" action="{{ app.path('home') }}">
-    <input name="email" type="email" placeholder="Email"/>
-    <input type="submit" />
+    <div class="grid">
+      <p class="grid-item two-thirds">
+        <input name="email" type="email" placeholder="Email address"/>
+      </p>
+      <br>
+      <div class="grid-item two-thirds">
+        <button class="button button-primary" name="submit" type="submit" value="join">Start Blogging</button>
+        <button class="button" name="submit" type="submit" value="login">Log In</button>
+      </div>
+    </div>
   </form>
-
-  <div>
-    <a href="{{ path('login') }}">Login</a>
-  </div>
 {% endblock %}
 

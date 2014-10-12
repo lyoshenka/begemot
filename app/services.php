@@ -9,6 +9,7 @@ function initServices($app) {
   $app['config.system_email'] = 'begemot@begemot.grin.io';
   $app['config.post_email'] = 'post@begemot.grin.io';
   $app['config.support_email'] = 'grin@grin.io';
+  $app['root_dir'] = __DIR__;
 
 
   /*------------------------------*\
@@ -86,21 +87,13 @@ function initServices($app) {
               MAILER
   \*------------------------------*/
 
+  require_once __DIR__.'/mailer.php';
+
   $app['mandrill.token'] = MANDRILL_API_KEY;
   $app['mailer'] = $app->share(function($app) {
-    return new Mandrill($app['mandrill.token']);
+    return new BgMailer($app, $app['mandrill.token']);
   });
 
-
-  /*------------------------------*\
-              CSS INLINER
-  \*------------------------------*/
-
-  $app['css_inliner'] = $app->share(function($app) {
-    $inliner = new Northys\CSSInliner\CSSInliner();
-    $inliner->addCSS(__DIR__ . '/views/emails/email_styles.css');
-    return $inliner;
-  });
 
   /*------------------------------*\
               TWIG
@@ -126,7 +119,7 @@ function initServices($app) {
   \*------------------------------*/
   $app['user'] = $app->share(function($app) {
     return $app['session']->get('user_id') ?
-           ($app['pdo']->fetchOne('SELECT * FROM user WHERE id = ?', $app['session']->get('user_id')) ?: null) :
+           $app['pdo']->fetchOne('SELECT * FROM user WHERE id = ?', $app['session']->get('user_id')) :
            null;
   });
 
@@ -158,6 +151,6 @@ function initServices($app) {
   $app->register(new FF\ServiceProvider\LessServiceProvider(), [
     'less.sources'     => [__DIR__.'/less/style.less'], // specify one or serveral .less files
     'less.target'      => __DIR__.'/../web/css/style.css', // specify .css target file
-//    'less.target_mode' => 0775, // Optional
+    'less.target_mode' => 0444, // Optional
   ]);
 }

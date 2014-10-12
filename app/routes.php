@@ -10,140 +10,87 @@ function initRoutes($app) {
   require_once __DIR__.'/routes/github.php';
 
   $app->match('/', function(Request $request) use($app) {
-    if ($app['user']) // if logged in, go to app
+    if ($app['user']) // if logged in, do app
     {
       return $app->redirect($app->path('app'));
     }
 
+    $errors = [];
+
     if ($request->getMethod() == 'POST')
     {
-      $email = trim($request->get('email'));
-      $errors = $app['validator']->validateValue($email, [
-        new Assert\NotBlank(['message' => 'Please enter your email.']),
-        new Assert\Email(),
-        new Assert\Callback(function($email, Symfony\Component\Validator\ExecutionContextInterface $context) use($app) {
-          $result = $app['pdo']->fetchOne('SELECT count(*) as has_one FROM email e WHERE e.email = ? LIMIT 1', $email);
-          if ($result && $result['has_one'])
-          {
-            $context->addViolationAt('email','An account already exists for this email. Please log in or use a different email address.');
-          }
-        })
-      ]);
-      if ($errors->count())
+      if ($request->get('submit') == 'join')
       {
-        foreach($errors as $error)
+
+        $email = trim($request->get('email'));
+        $errors = $app['validator']->validateValue($email, [
+          new Assert\NotBlank(['message' => 'Please enter your email.']),
+          new Assert\Email(),
+          new Assert\Callback(function($email, Symfony\Component\Validator\ExecutionContextInterface $context) use($app) {
+            $result = $app['pdo']->fetchOne('SELECT count(*) as has_one FROM email e WHERE e.email = ? LIMIT 1', $email);
+            if ($result && $result['has_one'])
+            {
+              $context->addViolationAt('email','An account already exists for this email. Please log in or use a different email address.');
+            }
+          })
+        ]);
+
+        if (!$errors->count())
         {
-          $app['session']->getFlashBag()->add('form_error', $error);
+
+          $app['pdo']->beginTransaction();
+          $app['pdo']->execute('INSERT INTO user SET created_at = ?', date('Y-m-d H:i:s'));
+          $userId = $app['pdo']->lastInsertId();
+          $app['pdo']->execute('INSERT INTO email SET user_id = ?, email = ?, is_primary = 1', [$userId, $email]);
+          $app['pdo']->commit();
+
+          $app['log_event']('user.create', null, $userId);
+
+          $hash = $app['create_onetime_login']($userId);
+          $app['mailer']->sendJoinEmail($email, $hash);
+
+          return new Response(
+            'Thanks for trying out Begemot. Check your email for your login link. To make your life easier, we\'re not going to ask you to memorize yet another password.
+            Instead, you log in by entering your email address and we send you a link that will log you in. Please don\' share your login links with anyone else, or they will be able to log in as you.');
         }
-        return $app->redirect($app->path('home'));
       }
+      elseif($request->get('submit') == 'login')
+      {
+        $email = trim($request->get('email'));
+        $errors = $app['validator']->validateValue($email, [
+          new Assert\NotBlank(['message' => 'Please enter your email.']),
+          new Assert\Email()
+        ]);
 
-      $app['pdo']->beginTransaction();
-      $app['pdo']->execute('INSERT INTO user SET created_at = ?', date('Y-m-d H:i:s'));
-      $userId = $app['pdo']->lastInsertId();
-      $app['pdo']->execute('INSERT INTO email SET user_id = ?, email = ?, is_primary = 1', [$userId, $email]);
-      $app['pdo']->commit();
+        $user = null;
 
+        if (!$errors->count())
+        {
+          $user = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ? LIMIT 1', $email);
+          if (!$user)
+          {
+            $errors->add(new Symfony\Component\Validator\ConstraintViolation(
+              'This email address is not in our system. Please double-check the address or create a new account.',
+              '', [], '', '', $email
+            ));
+          }
+        }
 
-      $hash = $app['create_onetime_login']($userId);
-
-      $message = [
-        'to' => [
-          ['type' => 'to', 'email' => $email]
-        ],
-        'subject' => 'Welcome to Begemot',
-        'html' => $app['css_inliner']->render($app['twig']->render('emails/login.twig', [
-          'url' => $app->url('login_with_hash', ['hash' => $hash]),
-          'newAccount' => true
-        ])),
-        'from_email' => $app['config.system_email'],
-        'from_name' => 'Begemot',
-        'track_clicks' => false
-      ];
-
-      $app['mailer']->messages->send($message);
-
-      return $app->redirect($app->path('new_user'));
+        if (!$errors->count())
+        {
+          $hash = $app['create_onetime_login']($user['id']);
+          $app['mailer']->sendLoginEmail($email, $hash);
+          $loginEmailSent = true;
+          return new Response('Login email sent');
+//          return $app['twig']->render('login.twig', ['errors' => $errors, 'loginEmailSent' => $loginEmailSent]);
+        }
+      }
     }
 
-    return $app['twig']->render('home.twig');
+    return $app['twig']->render('home.twig', ['errors' => $errors]);
   })
   ->method('GET|POST|HEAD')
   ->bind('home');
-
-
-
-  $app->get('/new', function() use($app) {
-    if ($app['user']) // if logged in, go to app
-    {
-      return $app->redirect($app->path('home'));
-    }
-    return new Response(
-      'Thanks for trying out Begemot. Check your email for your login link. To make your life easier, we\'re not going to ask you to memorize yet another password.
-      Instead, you log in by entering your email address and we send you a link that will log you in. Please don\' share your login links with anyone else, or they will be able to log in as you.');
-  })
-  ->bind('new_user');
-
-
-
-  $app->match('/login', function(Request $request) use($app) {
-    if ($app['user']) // if logged in, go to app
-    {
-      return $app->redirect($app->path('app'));
-    }
-
-    $errors = null;
-    $loginEmailSent = false;
-
-    if ($request->getMethod() == 'POST')
-    {
-      $email = trim($request->get('login_email'));
-      $errors = $app['validator']->validateValue($email, [
-        new Assert\NotBlank(['message' => 'Please enter your email.']),
-        new Assert\Email()
-      ]);
-
-      $user = null;
-
-      if (!$errors->count())
-      {
-        $user = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ? LIMIT 1', $email);
-        if (!$user)
-        {
-          $errors->add(new Symfony\Component\Validator\ConstraintViolation(
-            'This email address is not in our system. Please double-check the address or <a href="' . $app->path('/') . '">create a new account</a>.',
-            '', [], '', '', $email
-          ));
-        }
-      }
-
-      if (!$errors->count())
-      {
-        $hash = $app['create_onetime_login']($user['id']);
-
-        $message = [
-          'to' => [
-            ['type' => 'to', 'email' => $email]
-          ],
-          'subject' => 'Begemot Login',
-          'html' => $app['css_inliner']->render($app['twig']->render('emails/login.twig', [
-            'url' => $app->url('login_with_hash', ['hash' => $hash]),
-          ])),
-          'from_email' => $app['config.system_email'],
-          'from_name' => 'Begemot',
-          'track_clicks' => false
-        ];
-
-        $app['mailer']->messages->send($message);
-
-        $loginEmailSent = true;
-      }
-    }
-
-    return $app['twig']->render('login.twig', ['errors' => $errors, 'loginEmailSent' => $loginEmailSent]);
-  })
-  ->method('GET|POST')
-  ->bind('login');
 
 
 
@@ -162,7 +109,7 @@ function initRoutes($app) {
 
     $app['session']->set('user_id', null); // if they were logged in as someone else, log them out just in case
 
-    return new Response('This login link is invalid or it has expired. Please <a href="' . $app->path('login') . '">click here</a> to try logging in again.');
+    return new Response('This login link is invalid or it has expired. Please <a href="' . $app->path('home') . '">click here</a> to try logging in again.');
 
   })
   ->bind('login_with_hash');
@@ -204,9 +151,9 @@ function initRoutes($app) {
       return $app->forward($app->path('github_select_path'));
     }
 
-    $event = $app['pdo'];
+    $events = $app['pdo']->fetchAssoc('SELECT * FROM event WHERE user_id = ? ORDER BY created_at DESC LIMIT 10', $app['user']['id']);
 
-    return $app['twig']->render('app.twig', ['user' => $app['user']]);
+    return $app['twig']->render('app.twig', ['user' => $app['user'], 'events' => $events]);
   })->bind('app');
 
 
@@ -228,87 +175,54 @@ function initRoutes($app) {
     $events = json_decode($data, true);
     foreach($events as $event)
     {
-      $from = $event['msg']['from_email'];
+      $senderEmail = $event['msg']['from_email'];
 
-      $app->log('got email from ' . $from);
+      $app->log('got email from ' . $senderEmail);
 
-      $stmt = $app['pdo']->fetchAssoc('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ?', $from) ?: null;
+      $stmt = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ?', $senderEmail);
 
       if (!$user)
       {
         continue; // user not found. we could notify them, but dont wanna deal with spam
       }
 
-      $subject = $event['msg']['subject'];
-      $text = $event['msg']['text'];
+      $postTitle = $event['msg']['subject'];
+      $postText = trim($event['msg']['text']);
 
-      $filename = date('Y-m-d') . '-' . rtrim(preg_replace('/[^a-z0-9]+/', '-', strtolower($subject)), '-') . '.md';
+      $filename = date('Y-m-d') . '-' . rtrim(preg_replace('/[^a-z0-9]+/', '-', strtolower($postTitle)), '-') . '.md';
 
       list($githubUsername,$repo) = explode('/', $user['github_repo']);
-      $committer = ['name' => 'Begemot', 'email' => $from];
-
-      $message = [
-        'to' => [
-          ['type' => 'to', 'email' => $from]
-        ],
-        'from_email' => $app['config.system_email'],
-        'from_name' => 'Begemot',
-        'track_clicks' => false
-      ];
-
+      $committer = ['name' => 'Begemot', 'email' => $senderEmail];
 
       try
       {
         $app['github']->authenticate($user['github_token'], null, Github\Client::AUTH_HTTP_TOKEN);
         $fileInfo = $app['github']->api('repo')->contents()->create(
-          $githubUsername, $repo, $user['posts_path'].'/'.$filename, trim($text), 'post via begemot: '.$subject, $user['github_branch'], $committer
+          $githubUsername, $repo, $user['posts_path'].'/'.$filename, $postText, 'post via begemot: '.$postTitle, $user['github_branch'], $committer
         );
         $app->log('Successfully created post');
-        $app['log_event']('post.publish', $subject, $user['id']);
-        $message['subject'] = 'Post Published';
-        $message['html'] = $app['css_inliner']->render(
-          $app['twig']->render('emails/post_received.twig', ['title' => $subject])
-        );
+        $app['log_event']('post.publish', $postTitle, $user['id']);
+        $app['mailer']->sendPublishSuccessEmail($senderEmail, $postTitle);
+        $app->log('Sent publish success email');
       }
       catch (Github\Exception\RuntimeException $e)
       {
         if (stripos($e->getMessage(), 'Missing required keys "sha" in object') !== false)
         {
           $app->log('Post exists for filename "' . $filename . '"');
-          $message['subject'] = 'Post Error';
-          $message['html'] = $app['css_inliner']->render(
-            $app['twig']->render('emails/post_error.twig', [
-              'title' => $subject,
-              'text' => 'A post with the same title already exists for today'
-            ])
-          );
+          $app['log_event']('post.error', $postTitle, $user['id']);
+          $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle, 'A post with the same title already exists for today');
+          $app->log('Sent publish error email');
         }
         else
         {
           $app->log('Error creating file on github: ' . $e);
-          $message['subject'] = 'Post Error';
-          $message['html'] = $app['css_inliner']->render(
-            $app['twig']->render('emails/post_error.twig', [
-              'title' => $subject,
-              'text' => 'Got an error from GitHub: "' . $e->getMessage . '". If this doesn\'t help clear things up, please forward this email to ' . $app['config.support_email']
-            ])
+          $app['log_event']('post.error', $postTitle, $user['id']);
+          $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle,
+            'Got an error from GitHub: "' . $e->getMessage . '". If this doesn\'t help clear things up, please forward this email to ' . $app['config.support_email']
           );
+          $app->log('Sent publish error email');
         }
-      }
-
-
-      try
-      {
-        $result = $app['mailer']->messages->send($message);
-        $app->log('Sent publish email');
-      }
-      catch(Mandrill_Error $e)
-      {
-        $app->log('Error sending email: ' . $e);
-        // Mandrill errors are thrown as exceptions
-        echo 'A mandrill error occurred: ' . get_class($e) . ' - ' . $e->getMessage();
-        // A mandrill error occurred: Mandrill_Unknown_Subaccount - No subaccount exists with the id 'customer-123'
-        throw $e;
       }
     }
 

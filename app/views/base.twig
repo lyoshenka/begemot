@@ -2,11 +2,49 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {# <meta http-equiv="ClearType" content="true"> #}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"> #}
+    <title>Begemot</title>
     <link rel='stylesheet' type='text/css' href="/css/style.css">
     <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=PT+Serif:400,700'>
-    <title>Begemot</title>
+    <script src="/js/vendor/modernizr-2.8.1.min.js"></script>
   </head>
   <body>
-    {% block body %}{% endblock %}
+    <div class="wrapper">
+      <header class="grid">
+        <div class="grid-item medium-one-sixth"></div>
+        <div class="grid-item medium-two-thirds">
+          <h1>Begemot <small>Jekyll by Email</small></h1>
+        </div>
+      </header>
+      <div class="grid">
+        <div class="grid-item medium-one-sixth"></div>
+        <div class="grid-item medium-two-thirds">
+          {% block body %}{% endblock %}
+        </div>
+      </div>
+
+      {#
+      <footer class="grid">
+        Begemot | About | Pricing | Contact
+      </footer>
+      #}
+
+      <div class="hidden">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script>window.jQuery || document.write("<script src=\"js/vendor/jquery-2.1.1.min.js\"><\/script>")</script>
+
+        <!-- Scripts -->
+        <script src="/js/plugins.js"></script>
+        <script src="/js/main.js"></script>
+      </div>
+
+      {#
+      <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+      <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+       #}
+   </div>
   </body>
 </html>

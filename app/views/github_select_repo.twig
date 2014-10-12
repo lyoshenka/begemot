@@ -3,13 +3,7 @@
 {% block body %}
   <h1>Select Repository</h1>
 
-  {% if errors.count() %}
-    {% for error in errors %}
-      <div class="form-error" style="color:red;">
-        {{ error }}
-      </div>
-    {% endfor %}
-  {% endif %}
+  {% include "partials/form_errors.twig" with {'errors': errors} %}
 
   <form method="POST" action="{{ app.path('github_select_repo') }}">
     <label for="repo">Choose the repository where your blog lives</label>

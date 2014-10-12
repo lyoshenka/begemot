@@ -1,0 +1,7 @@
+{% if errors and errors.count() %}
+  {% for error in errors %}
+    <div class="form-error">
+      {{ error }}
+    </div>
+  {% endfor %}
+{% endif %}

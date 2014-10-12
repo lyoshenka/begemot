@@ -1,7 +1,7 @@
 {% extends "base.twig" %}
 
 {% block body %}
-  <h1>Settings</h1>
+  <h2>Settings</h2>
 
   <div>
     Send your posts to <strong>{{ app['config.post_email'] }}</strong>
@@ -15,6 +15,15 @@
   <div>
     Directory: {{ user.posts_path }}
   </div>
+
+  {% if events %}
+    <ul>
+      {% for event in events %}
+        <li>{{ event.type }} - {{ event.description }} - {{ event.created_at | date("Y-m-d H:i:s") }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
   <div>
     <a href="{{ path('github_select_repo') }}">Edit</a>
   </div>

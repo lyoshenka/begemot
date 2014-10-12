@@ -3,13 +3,7 @@
 {% block body %}
   <h1>Select Branch</h1>
 
-  {% if errors.count() %}
-    {% for error in errors %}
-      <div class="form-error" style="color:red;">
-        {{ error }}
-      </div>
-    {% endfor %}
-  {% endif %}
+  {% include "partials/form_errors.twig" with {'errors': errors} %}
 
   <form method="POST" action="{{ app.path('github_select_branch') }}">
     <label for="branch">Choose the branch where your posts will go</label>
