@@ -105,6 +105,46 @@ function initServices($app) {
     ]
   ]);
 
+  $app['twig']->addFilter(new Twig_SimpleFilter('substr', function ($text, $maxLength = 30, $exact = false) {
+    if (strlen($text) <= $maxLength)
+    {
+      return $text;
+    }
+
+    $subString = substr($text, 0, $maxLength);
+    if (!$exact && substr($subString,-1,1) != ' ')
+    {
+      $subString = substr($subString, 0, strrpos($subString, ' '));
+    }
+
+    return $subString;
+  }));
+
+  $app['twig']->addFilter(new Twig_SimpleFilter('timeago', function ($datetime) {
+    $time = time() - strtotime($datetime);
+    $units = array (
+      31536000 => 'year',
+      2592000 => 'month',
+      604800 => 'week',
+      86400 => 'day',
+      3600 => 'hour',
+      60 => 'minute',
+      1 => 'second'
+    );
+
+    foreach ($units as $unit => $val)
+    {
+      if ($time < $unit)
+      {
+        continue;
+      }
+      $numberOfUnits = floor($time / $unit);
+      return ($val == 'second') ?
+             'a few seconds ago' :
+             ($numberOfUnits > 1 ? $numberOfUnits : 'a') . ' ' . $val . ($numberOfUnits>1 ? 's' : '') . ' ago';
+    }
+  }));
+
 
   /*------------------------------*\
               LOGGING
@@ -151,6 +191,6 @@ function initServices($app) {
   $app->register(new FF\ServiceProvider\LessServiceProvider(), [
     'less.sources'     => [__DIR__.'/less/style.less'], // specify one or serveral .less files
     'less.target'      => __DIR__.'/../web/css/style.css', // specify .css target file
-    'less.target_mode' => 0444, // Optional
+    // 'less.target_mode' => 0444, // Optional
   ]);
 }

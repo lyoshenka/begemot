@@ -13,15 +13,13 @@
   </head>
   <body>
     <div class="wrapper">
-      <header class="grid">
-        <div class="grid-item medium-one-sixth"></div>
-        <div class="grid-item medium-two-thirds">
-          <h1>Begemot <small>Jekyll by Email</small></h1>
+      <header>
+        <div>
+          <h1><img class="logo" src="/img/begemot.png" /> <a href="{{ app.path('home') }}">Begemot</a> <small>Jekyll by Email</small></h1>
         </div>
       </header>
       <div class="grid">
-        <div class="grid-item medium-one-sixth"></div>
-        <div class="grid-item medium-two-thirds">
+        <div class="grid-item">
           {% block body %}{% endblock %}
         </div>
       </div>

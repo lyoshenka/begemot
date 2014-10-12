@@ -1,32 +1,40 @@
 {% extends "base.twig" %}
 
 {% block body %}
-  <h2>Settings</h2>
-
-  <div>
-    Send your posts to <strong>{{ app['config.post_email'] }}</strong>
-  </div>
-  <div>
-    Repository: {{ user.github_repo }}
-  </div>
-  <div>
-    Branch: {{ user.github_branch}}
-  </div>
-  <div>
-    Directory: {{ user.posts_path }}
-  </div>
+  <p class="island primary">
+    Email your posts to <strong><a class="unstyled-link" href="mailto:{{ app['config.post_email'] }}?subject=Post+title+goes+in+subject&body=---%0Alayout%3A+post%0Atags%3A+%5Btag1%2Ctag2%5D%0A---%0A%0APost+content+goes+here">{{ app['config.post_email'] }}</a></strong>
+  </p>
+  <p>
+    <div style="overflow:hidden">
+      <h2 class="crossbars">Settings</h2>
+    </div>
+    <p>
+      Repository: {{ user.github_repo }}<br>
+      Branch: {{ user.github_branch}}<br>
+      Directory: {{ user.posts_path }}
+    </p>
+    <div>
+      <a href="{{ path('github_select_repo') }}">Edit</a>
+    </div>
+  </p>
 
   {% if events %}
-    <ul>
-      {% for event in events %}
-        <li>{{ event.type }} - {{ event.description }} - {{ event.created_at | date("Y-m-d H:i:s") }}</li>
-      {% endfor %}
-    </ul>
+    <p>
+      <div style="overflow:hidden">
+        <h2 class="crossbars">Events</h2>
+      </div>
+      <span class="text-light">This is a log of events that are related to your account.</span>
+      <table class="table-border-rows events-table">
+        {% for event in events %}
+          <tr>
+            <td><strong>{{ event.type }}</strong>{% if event.description %} &ndash; {{ event.description }}{% endif %}</td>
+            <td class="text-right text-light">{{ event.created_at | timeago }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </p>
   {% endif %}
 
-  <div>
-    <a href="{{ path('github_select_repo') }}">Edit</a>
-  </div>
   <div>
     <a href="{{ path('logout') }}">Logout</a>
   </div>

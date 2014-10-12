@@ -10,9 +10,9 @@
     <select id="repo" name="repo">
       <option value=""></option>
       {% for repo in repos %}
-        <option value="{{ repo.full_name }}" {% if selectedRepo == repo.full_name %}selected{% endif %}>{{ repo.full_name }} - {{ repo.description }}</option>
+        <option value="{{ repo.full_name }}" {% if selectedRepo == repo.full_name %}selected{% endif %}>{{ repo.full_name }} - {{ repo.description | substr(50) }}</option>
       {% endfor %}
     </select>
-    <input type="submit" />
+    <button class="button button-primary" type="submit">Submit</button>
   </form>
 {% endblock %}

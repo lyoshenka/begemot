@@ -80,9 +80,10 @@ function initRoutes($app) {
         {
           $hash = $app['create_onetime_login']($user['id']);
           $app['mailer']->sendLoginEmail($email, $hash);
-          $loginEmailSent = true;
-          return new Response('Login email sent');
-//          return $app['twig']->render('login.twig', ['errors' => $errors, 'loginEmailSent' => $loginEmailSent]);
+          return $app['twig']->render('notice.twig', [
+            'type' => 'success',
+            'text' => "We just sent you an email with a login link. Click that link to log in."
+          ]);
         }
       }
     }

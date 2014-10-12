@@ -3,19 +3,19 @@
 {% block body %}
 
   <p class="lead">
-    Post to your Jekyll blog just by sending an email.
+    Post to your Github-hosted blog just by sending an email.
   </p>
 
   {% include "partials/form_errors.twig" with {'errors': errors} %}
 
   <form method="POST" action="{{ app.path('home') }}">
     <div class="grid">
-      <p class="grid-item two-thirds">
-        <input name="email" type="email" placeholder="Email address"/>
+      <p class="grid-item medium-two-thirds">
+        <input name="email" type="email" placeholder="Enter your email address"/>
       </p>
       <br>
-      <div class="grid-item two-thirds">
-        <button class="button button-primary" name="submit" type="submit" value="join">Start Blogging</button>
+      <div class="grid-item medium-two-thirds">
+        <button class="button button-primary" name="submit" type="submit" value="join">Let's Get Started</button>
         <button class="button" name="submit" type="submit" value="login">Log In</button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 setupGithubRoutes($app);
 function setupGithubRoutes($app) {
   $routes = $app['controllers_factory'];
-  
+
 
   $routes->match('/repo', function(Request $request) use($app) {
     if (!$app['user'])
@@ -62,6 +62,7 @@ function setupGithubRoutes($app) {
 
     list($githubUsername,$repo) = explode('/', $app['user']['github_repo']);
     $branches = $app['github']->api('repo')->branches($githubUsername, $repo);
+    $branchNames = array_map(function($b) { return $b['name']; }, $branches);
 
     $branch = $app['user']['github_branch'];
     $errors = null;
@@ -73,7 +74,7 @@ function setupGithubRoutes($app) {
       $errors = $app['validator']->validateValue($branch, [
         new Assert\NotBlank(['message' => 'Please choose a branch']),
         new Assert\Choice([
-          'choices' => array_map(function($b) { return $b['name']; }, $branches),
+          'choices' => $branchNames,
           'message' => "Invalid branch"
         ])
       ]);
@@ -88,7 +89,15 @@ function setupGithubRoutes($app) {
       }
     }
 
-    return $app['twig']->render('github_select_branch.twig', ['branches' => $branches, 'selectedBranch' => $branch, 'errors' => $errors]);
+    usort($branches, function($a, $b) {
+      if ($a == 'gh-pages') return -1;
+      if ($b == 'gh-pages') return 1;
+      if ($a == 'master') return -1;
+      if ($b == 'master') return 1;
+      return strnatcasecmp($a, $b);
+    });
+
+    return $app['twig']->render('github_select_branch.twig', ['branches' => $branchNames, 'selectedBranch' => $branch, 'errors' => $errors]);
   })
   ->method('GET|POST')
   ->bind('github_select_branch');
@@ -149,7 +158,7 @@ function setupGithubRoutes($app) {
   })
   ->method('GET|POST')
   ->bind('github_select_path');
-  
+
 
 
   $routes->get('/connect', function() use($app) {

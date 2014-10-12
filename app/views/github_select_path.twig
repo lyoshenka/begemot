@@ -1,13 +1,13 @@
 {% extends "base.twig" %}
 
 {% block body %}
-  <h1>Enter Directory</h1>
+  <h3>Post Directory</h3>
 
   {% include "partials/form_errors.twig" with {'errors': errors} %}
 
   <form method="POST" action="{{ app.path('github_select_path') }}">
-    <label for="path">Enter the directory where your posts will be saved.</label>
-    <input type="text" name="path" value="{{ selectedPath }}" />
-    <input type="submit" />
+    <p><label for="path">What folder should we create your posts in?</label></p>
+    <p><input type="text" name="path" value="{{ selectedPath }}" /></p>
+    <button class="button button-primary" type="submit">Submit</button>
   </form>
 {% endblock %}
