@@ -89,7 +89,7 @@ function setupGithubRoutes($app) {
       }
     }
 
-    usort($branches, function($a, $b) {
+    usort($branchNames, function($a, $b) {
       if ($a == 'gh-pages') return -1;
       if ($b == 'gh-pages') return 1;
       if ($a == 'master') return -1;

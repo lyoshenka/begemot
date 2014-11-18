@@ -21,7 +21,8 @@ class BgMailer extends Mandrill
     $this->messages->send([
       'from_email' => $this->app['config.system_email'],
       'from_name' => 'Begemot',
-      'track_clicks' => false,
+      'track_clicks' => true,
+      'track_opens' => true,
       'to' => [['type' => 'to', 'email' => $email]],
       'subject' => 'Welcome to Begemot',
       'html' => $this->cssInliner->render($this->app['twig']->render('emails/login.twig', [
@@ -37,6 +38,7 @@ class BgMailer extends Mandrill
       'from_email' => $this->app['config.system_email'],
       'from_name' => 'Begemot',
       'track_clicks' => false,
+      'track_opens' => true,
       'to' => [['type' => 'to', 'email' => $email]],
       'subject' => 'Begemot Login',
       'html' => $this->cssInliner->render($this->app['twig']->render('emails/login.twig', [
@@ -51,6 +53,7 @@ class BgMailer extends Mandrill
       'from_email' => $this->app['config.system_email'],
       'from_name' => 'Begemot',
       'track_clicks' => false,
+      'track_opens' => true,
       'to' => [['type' => 'to', 'email' => $email]],
       'subject' => 'Post Published',
       'html' => $this->cssInliner->render($this->app['twig']->render('emails/post_received.twig', [
@@ -65,6 +68,7 @@ class BgMailer extends Mandrill
       'from_email' => $this->app['config.system_email'],
       'from_name' => 'Begemot',
       'track_clicks' => false,
+      'track_opens' => true,
       'to' => [['type' => 'to', 'email' => $email]],
       'subject' => 'Post Error',
       'html' => $this->cssInliner->render($this->app['twig']->render('emails/post_received.twig', [

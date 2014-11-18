@@ -7,12 +7,12 @@
 
   <form method="POST" action="{{ app.path('github_select_repo') }}">
     <label for="repo">Choose the repository where your blog lives</label>
-    <select id="repo" name="repo">
+    <p><select id="repo" name="repo">
       <option value=""></option>
       {% for repo in repos %}
         <option value="{{ repo.full_name }}" {% if selectedRepo == repo.full_name %}selected{% endif %}>{{ repo.full_name }} - {{ repo.description | substr(50) }}</option>
       {% endfor %}
-    </select>
+    </select></p>
     <button class="button button-primary" type="submit">Submit</button>
   </form>
 {% endblock %}

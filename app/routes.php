@@ -180,10 +180,11 @@ function initRoutes($app) {
 
       $app->log('got email from ' . $senderEmail);
 
-      $stmt = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ?', $senderEmail);
+      $user = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ?', $senderEmail);
 
       if (!$user)
       {
+        $app->log('user not found');
         continue; // user not found. we could notify them, but dont wanna deal with spam
       }
 

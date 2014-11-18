@@ -36,7 +36,7 @@ function initServices($app) {
   $app['pdo.pass'] = MYSQL_PASS;
 
   $app['pdo'] = $app->share(function ($app) {
-    return new myPDO("mysql:host={$app['pdo.host']};dbname={$app['pdo.db']};charset=UTF8", $app['pdo.user'], $app['pdo.pass'], [
+    return new myPDO($app, "mysql:host={$app['pdo.host']};dbname={$app['pdo.db']};charset=UTF8", $app['pdo.user'], $app['pdo.pass'], [
       PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'",
       PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
