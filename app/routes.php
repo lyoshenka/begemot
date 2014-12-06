@@ -189,7 +189,19 @@ function initRoutes($app) {
       }
 
       $postTitle = $event['msg']['subject'];
-      $postText = trim($event['msg']['text']);
+      $postText = trim($event['msg']['text'])."\n";
+
+
+      if (strpos($postText, '---') !== 0)
+      {
+        $frontMatter = Symfony\Component\Yaml\Yaml::dump([
+          'title' => $postTitle,
+          'date' => date('Y-m-d H:i:s')
+        ]);
+
+	$postText = "---\n" . $frontMatter . "---\n\n" . $postText;
+      }
+
 
       $filename = date('Y-m-d') . '-' . rtrim(preg_replace('/[^a-z0-9]+/', '-', strtolower($postTitle)), '-') . '.md';
 
