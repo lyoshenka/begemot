@@ -29,7 +29,7 @@
         {% for event in events %}
           <tr>
             <td><strong>{{ event.type }}</strong>{% if event.description %} &ndash; {{ event.description }}{% endif %}</td>
-            <td class="text-right text-light">{{ event.created_at | timeago }}</td>
+            <td class="text-right text-light" title="{{ event.created_at }}">{{ event.created_at | timeago }}</td>
           </tr>
         {% endfor %}
       </table>

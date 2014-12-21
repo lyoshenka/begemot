@@ -26,23 +26,7 @@ class BgMailer extends Mandrill
       'to' => [['type' => 'to', 'email' => $email]],
       'subject' => 'Welcome to Begemot',
       'html' => $this->cssInliner->render($this->app['twig']->render('emails/login.twig', [
-        'url' => $this->app->url('login_with_hash', ['hash' => $hash]),
-        'newAccount' => true
-      ])),
-    ]);
-  }
-
-  public function sendLoginEmail($email, $hash)
-  {
-    $this->messages->send([
-      'from_email' => $this->app['config.system_email'],
-      'from_name' => 'Begemot',
-      'track_clicks' => false,
-      'track_opens' => true,
-      'to' => [['type' => 'to', 'email' => $email]],
-      'subject' => 'Begemot Login',
-      'html' => $this->cssInliner->render($this->app['twig']->render('emails/login.twig', [
-        'url' => $this->app->url('login_with_hash', ['hash' => $hash]),
+        'url' => $this->app->url('app')
       ])),
     ]);
   }

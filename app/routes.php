@@ -14,106 +14,10 @@ function initRoutes($app) {
     {
       return $app->redirect($app->path('app'));
     }
-
     return $app['twig']->render('home.twig');
-
-    // $errors = [];
-
-    // if ($request->getMethod() == 'POST')
-    // {
-    //   if ($request->get('submit') == 'join')
-    //   {
-
-    //     $email = trim($request->get('email'));
-    //     $errors = $app['validator']->validateValue($email, [
-    //       new Assert\NotBlank(['message' => 'Please enter your email.']),
-    //       new Assert\Email(),
-    //       new Assert\Callback(function($email, Symfony\Component\Validator\ExecutionContextInterface $context) use($app) {
-    //         $result = $app['pdo']->fetchOne('SELECT count(*) as has_one FROM email e WHERE e.email = ? LIMIT 1', $email);
-    //         if ($result && $result['has_one'])
-    //         {
-    //           $context->addViolationAt('email','An account already exists for this email. Please log in or use a different email address.');
-    //         }
-    //       })
-    //     ]);
-
-    //     if (!$errors->count())
-    //     {
-
-    //       $app['pdo']->beginTransaction();
-    //       $app['pdo']->execute('INSERT INTO user SET created_at = ?', date('Y-m-d H:i:s'));
-    //       $userId = $app['pdo']->lastInsertId();
-    //       $app['pdo']->execute('INSERT INTO email SET user_id = ?, email = ?, is_primary = 1', [$userId, $email]);
-    //       $app['pdo']->commit();
-
-    //       $app['log_event']('user.create', null, $userId);
-
-    //       $hash = $app['create_onetime_login']($userId);
-    //       $app['mailer']->sendJoinEmail($email, $hash);
-
-    //       return new Response(
-    //         'Thanks for trying out Begemot. Check your email for your login link. To make your life easier, we\'re not going to ask you to memorize yet another password.
-    //         Instead, you log in by entering your email address and we send you a link that will log you in. Please don\' share your login links with anyone else, or they will be able to log in as you.');
-    //     }
-    //   }
-    //   elseif($request->get('submit') == 'login')
-    //   {
-    //     $email = trim($request->get('email'));
-    //     $errors = $app['validator']->validateValue($email, [
-    //       new Assert\NotBlank(['message' => 'Please enter your email.']),
-    //       new Assert\Email()
-    //     ]);
-
-    //     $user = null;
-
-    //     if (!$errors->count())
-    //     {
-    //       $user = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ? LIMIT 1', $email);
-    //       if (!$user)
-    //       {
-    //         $errors->add(new Symfony\Component\Validator\ConstraintViolation(
-    //           'This email address is not in our system. Please double-check the address or create a new account.',
-    //           '', [], '', '', $email
-    //         ));
-    //       }
-    //     }
-
-    //     if (!$errors->count())
-    //     {
-    //       $hash = $app['create_onetime_login']($user['id']);
-    //       $app['mailer']->sendLoginEmail($email, $hash);
-    //       return $app['twig']->render('notice.twig', [
-    //         'type' => 'success',
-    //         'text' => "We just sent you an email with a login link. Click that link to log in."
-    //       ]);
-    //     }
-    //   }
-    // }
   })
   ->method('GET|POST|HEAD')
   ->bind('home');
-
-
-
-  $app->get('/login/{hash}', function($hash) use($app) {
-    $user = $app['pdo']->fetchOne(
-      'SELECT u.* FROM user u INNER JOIN onetime_login o ON u.id = o.user_id AND o.hash = ? AND o.created_at > SUBTIME(NOW(), "00:30:00") LIMIT 1', $hash
-    );
-
-    if ($user)
-    {
-      $app['session']->set('user_id', $user['id']);
-      $app['log_event']('user.login', null, $user['id']);
-      $app['session']->save();
-      return $app->redirect($app->path('app'));
-    }
-
-    $app['session']->set('user_id', null); // if they were logged in as someone else, log them out just in case
-
-    return new Response('This login link is invalid or it has expired. Please <a href="' . $app->path('home') . '">click here</a> to try logging in again.');
-
-  })
-  ->bind('login_with_hash');
 
 
 
@@ -194,12 +98,23 @@ function initRoutes($app) {
 
       if (strpos($postText, '---') !== 0)
       {
-        $frontMatter = Symfony\Component\Yaml\Yaml::dump([
+        $frontMatterData = [
           'title' => $postTitle,
           'date' => date('Y-m-d H:i:s')
-        ]);
+        ];
 
-	$postText = "---\n" . $frontMatter . "---\n\n" . $postText;
+        if (stripos($user['github_repo'], 'lyoshenka') === 0)
+        {
+          $frontMatterData['_id_'] = '';
+          for ($i = 0; $i < 16; $i++)
+          {
+            $frontMatterData['_id_'] .= rand(0, 9);
+          }
+        }
+
+        $frontMatter = Symfony\Component\Yaml\Yaml::dump($frontMatterData);
+
+        $postText = "---\n" . $frontMatter . "---\n\n" . $postText;
       }
 
 
