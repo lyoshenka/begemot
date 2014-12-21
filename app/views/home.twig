@@ -6,19 +6,6 @@
     Post to your Github-hosted blog just by sending an email.
   </p>
 
-  {% include "partials/form_errors.twig" with {'errors': errors} %}
-
-  <form method="POST" action="{{ app.path('home') }}">
-    <div class="grid">
-      <p class="grid-item medium-two-thirds">
-        <input name="email" type="email" placeholder="Enter your email address"/>
-      </p>
-      <br>
-      <div class="grid-item medium-two-thirds">
-        <button class="button button-primary" name="submit" type="submit" value="join">Let's Get Started</button>
-        <button class="button" name="submit" type="submit" value="login">Log In</button>
-      </div>
-    </div>
-  </form>
+  <a class="button button-primary" href="{{ path('github_connect') }}">Connect with GitHub</a>
 {% endblock %}
 

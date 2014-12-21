@@ -162,12 +162,12 @@ function setupGithubRoutes($app) {
 
 
   $routes->get('/connect', function() use($app) {
-    if (!$app['user']) // if logged in, go to app
+    if ($app['user'])
     {
-      return $app->redirect($app->path('home'));
+      return $app->redirect($app->path('app'));
     }
 
-    $state = sha1($app['session']->get('user_id').'P4tc9g6dGs'.time());
+    $state = str_shuffle(sha1(microtime(true)));
     $app['session']->set('github_state', $state);
     $app['session']->save(); // force save and close, just in case
 
@@ -182,7 +182,7 @@ function setupGithubRoutes($app) {
 
 
   $routes->get('/connect_callback', function(Request $request) use($app) {
-    if (!$app['user']) // if logged in, go to app
+    if ($app['user']) // if logged in, go to app
     {
       return $app->redirect($app->path('home'));
     }
@@ -205,7 +205,9 @@ function setupGithubRoutes($app) {
 
     if (isset($response['error']))
     {
-      // error from github
+      $msg = 'Error from GitHub: ' . $response['error'];
+      $app['monolog']->addError($msg);
+      die($msg);
     }
 
     $grantedScopes = explode(',', $response['scope']);
@@ -219,15 +221,104 @@ function setupGithubRoutes($app) {
     }
     if (!in_array('user', $grantedScopes))
     {
-      // not sure what happens here
+      $msg = 'User scope required.';
+      $app['monolog']->addError($msg);
+      die($msg);
     }
 
-    $stmt = $app['pdo']->prepare('UPDATE user SET github_token = :token, github_token_scope = :scope WHERE id = :id');
-    $stmt->bindValue(':token', $response['access_token']);
-    $stmt->bindValue(':scope', $response['scope']);
-    $stmt->bindValue(':id', $app['user']['id']);
-    $stmt->execute();
+    $user = $app['pdo']->fetchOne('SELECT * FROM user WHERE github_token = :token', [':token' => $response['access_token']]);
+    $existingEmails = [];
 
+    if (!$user)
+    {
+      $app['pdo']->execute('INSERT INTO user SET created_at = :date, github_token = :token, github_token_scope = :scope', [
+        ':date' => date('Y-m-d H:i:s'),
+        ':token' => $response['access_token'],
+        ':scope' => $response['scope']
+      ]);
+      $userId = $app['pdo']->lastInsertId();
+      $app['log_event']('user.create', null, $userId);
+    }
+    else
+    {
+      $userId = $user['id'];
+      $existingEmails = array_map(
+        function($item) { return $item['email']; },
+        (array)$app['pdo']->fetchAssoc('SELECT email FROM email WHERE user_id = ?', $userId)
+      );
+    }
+
+    $emailInfo = GuzzleHttp\get('https://api.github.com/user/emails', [
+      'headers' => [
+        'Accept' => 'application/json',
+        'Authorization' => 'token ' . $response['access_token']
+      ]
+    ])->json();
+
+
+    $githubEmails = array_filter(array_map(function($item) { return $item['verified'] ? $item['email'] : null; }, (array)$emailInfo));
+    $githubPrimaryEmail = array_values(array_filter(array_map(function($item) { return $item['primary'] ? $item['email'] : null; }, (array)$emailInfo)))[0];
+    $newEmails = array_diff($githubEmails, $existingEmails);
+    $emailsToRemove = array_diff($existingEmails, $githubEmails);
+
+    if (!in_array($githubPrimaryEmail, $githubEmails))
+    {
+      // that means primary address is not verified. gotta be safe.
+      $msg = 'Your primary address is not verified. Please verify your address on GitHub, then log in again.';
+      $app['monolog']->addError($msg);
+      die($msg);
+    }
+
+    $newEmailsAlreadyInDb = [];
+    if ($newEmails)
+    {
+      $inQuery = implode(',', array_fill(0, count($newEmails), '?'));
+
+      $stmt = $app['pdo']->prepare('SELECT email FROM email WHERE user_id != ? AND email IN(' . $inQuery . ')');
+      $stmt->bindValue(1, $userId);
+      $index = 2;
+      foreach($newEmails as $email)
+      {
+        $stmt->bindValue($index, $email);
+        $index++;
+      }
+      $stmt->execute();
+
+      $newEmailsAlreadyInDb = array_map(
+        function($item) { return $item['email']; },
+        (array)$stmt->fetchAll(PDO::FETCH_ASSOC)
+      );
+    }
+
+    foreach($newEmails as $email)
+    {
+      if (in_array($email, $newEmailsAlreadyInDb))
+      {
+        continue;
+      }
+
+      $app['pdo']->execute('INSERT INTO email SET email = :email, user_id = :userId', [
+        ':email' => $email,
+        ':userId' => $userId
+      ]);
+    }
+
+    foreach($emailsToRemove as $email)
+    {
+      $app['pdo']->execute('DELETE email WHERE email = :email AND user_id = :userId', [
+        ':email' => $email,
+        ':userId' => $userId
+      ]);
+    }
+
+    $app['pdo']->execute('UPDATE email SET is_primary = IF(email = :primary,1,0) WHERE user_id = :userId', [
+      ':primary' => $githubPrimaryEmail,
+      ':userId' => $userId
+    ]);
+
+
+    $app['session']->set('user_id', $userId);
+    $app['session']->save();
     return $app->redirect($app->path('app'));
   });
 
