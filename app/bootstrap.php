@@ -12,8 +12,6 @@ require_once __DIR__.'/app.php';
 $app = new MyApp();
 //$app['debug'] = true;
 
-$app['my_email'] = 'alex@grin.io';
-
 // Initialize Services
 require_once __DIR__.'/services.php';
 
@@ -25,4 +23,13 @@ require_once __DIR__.'/routes/github.php';
 // If no route matches, 404
 $app->error(function(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $code) use ($app) {
   return $app['twig']->render('404.twig');
+});
+
+$app->error(function (\Exception $e, $code) use ($app) {
+  if ($app['debug'])
+  {
+    return;
+  }
+  $app['mailer']->sendErrorEmail($e);
+  return $app['twig']->render('error.twig');
 });

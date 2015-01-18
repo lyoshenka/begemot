@@ -207,7 +207,7 @@ function setupGithubRoutes($app) {
     {
       $msg = 'Error from GitHub: ' . $response['error'];
       $app['monolog']->addError($msg);
-      $app->addFlash('error', $msg . '. Please contact ' . $app['my_email'] . ' for assistance.');
+      $app->addFlash('error', $msg . '. Please contact ' . $app['config.support_email'] . ' for assistance.');
       return $app->redirect($app->path('home'));
     }
 
@@ -224,7 +224,7 @@ function setupGithubRoutes($app) {
     {
       $msg = 'User scope required';
       $app['monolog']->addError($msg);
-      $app->addFlash('error', $msg . '. Please contact ' . $app['my_email'] . ' for assistance.');
+      $app->addFlash('error', $msg . '. Please contact ' . $app['config.support_email'] . ' for assistance.');
       return $app->redirect($app->path('home'));
     }
 
@@ -269,7 +269,7 @@ function setupGithubRoutes($app) {
       // that means primary address is not verified. gotta be safe.
       $msg = 'Your primary address is not verified. Please verify your address on GitHub, then log in again.';
       $app['monolog']->addError($msg);
-      $app->addFlash('error', $msg . ' Please contact ' . $app['my_email'] . ' for assistance.');
+      $app->addFlash('error', $msg . ' Please contact ' . $app['config.support_email'] . ' for assistance.');
       return $app->redirect($app->path('home'));
     }
 

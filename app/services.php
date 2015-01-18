@@ -8,7 +8,7 @@ function initServices($app) {
   \*------------------------------*/
   $app['config.system_email'] = 'begemot@begemot.grin.io';
   $app['config.post_email'] = 'post@begemot.grin.io';
-  $app['config.support_email'] = 'grin@grin.io';
+  $app['config.support_email'] = 'alex@grin.io';
   $app['root_dir'] = __DIR__;
 
 

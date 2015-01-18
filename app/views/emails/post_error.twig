@@ -1,5 +1,5 @@
 {% set hasAlert = true %}
-{% extends "emails/action.twig" %}
+{% extends "emails/base_email.twig" %}
 
 {% block title %}Post Error - {{ parent() }}{% endblock %}
 {% block alertText %}There was a problem posting <strong>{{ title }}</strong>{% endblock %}

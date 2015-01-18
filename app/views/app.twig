@@ -10,6 +10,14 @@
   </p>
   <p>
     <table>
+      <tr>
+        <th width="20%">Last Post</th>
+        {% if lastPostPublishEvent %}
+          <td title="{{ lastPostPublishEvent.created_at | date("Y-m-d H:i") }}">{{ lastPostPublishEvent.created_at | timeago }}</td>
+        {% else %}
+          <td>Never</td>
+        {% endif %}
+      </tr>
       <tr><th width="20%">Email Address</th><td>{{ primaryEmail }}</td></tr>
       <tr><th>Repository</th><td>{{ user.github_repo }}</td></tr>
       <tr><th>Branch</th><td>{{ user.github_branch}}</td></tr>

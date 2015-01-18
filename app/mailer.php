@@ -16,18 +16,19 @@ class BgMailer extends Mandrill
     return parent::__construct($apikey);
   }
 
-  public function sendJoinEmail()
+  public function sendErrorEmail(\Exception $error)
   {
     $this->messages->send([
       'from_email' => $this->app['config.system_email'],
       'from_name' => 'Begemot',
-      'track_clicks' => true,
-      'track_opens' => true,
-      'to' => [['type' => 'to', 'email' => $email]],
-      'subject' => 'Welcome to Begemot',
-      'html' => $this->cssInliner->render($this->app['twig']->render('emails/login.twig', [
-        'url' => $this->app->url('app')
-      ])),
+      'track_clicks' => false,
+      'track_opens' => false,
+      'to' => [['type' => 'to', 'email' => $this->app['config.support_email']]],
+      'subject' => 'Error in Begemot',
+      'html' => $this->app['twig']->render('emails/internal_error.twig', [
+        'request' => $this->app['request'],
+        'error' => $error
+      ]),
     ]);
   }
 

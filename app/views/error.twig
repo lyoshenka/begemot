@@ -1,0 +1,12 @@
+{% extends "base.twig" %}
+
+{% block body %}
+  <h1>Oops. Something broke.</h1>
+  <p>
+    Sorry about that. Something in Begemot went wrong. Don't worry, I should be getting an email about this automatically. I'll take a look as soon as I can.
+  </p>
+  <p>
+    If this keeps happening or if you want to get in touch, please email me at <a href="mailto:{{ app["config.support_email"] }}">{{ app["config.support_email"] }}</a>.
+  </p>
+  <a href="{{ path('home') }}">← Home</a>
+{% endblock %}

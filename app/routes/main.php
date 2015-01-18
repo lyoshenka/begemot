@@ -62,12 +62,12 @@ function initMainRoutes($app) {
       return $app->forward($app->path('about').'?new_account=1');
     }
 
-    $events = $app['pdo']->fetchAssoc('SELECT * FROM event WHERE user_id = ? ORDER BY created_at DESC LIMIT 10', $app['user']['id']);
+    $lastPostPublishEvent = $app['pdo']->fetchOne('SELECT * FROM event WHERE user_id = ? AND type = ? ORDER BY created_at DESC LIMIT 1', [$app['user']['id'], 'post.publish']);
     $email = $app['pdo']->fetchOne('SELECT * FROM email WHERE user_id = ? AND is_primary = 1 LIMIT 1', $app['user']['id']);
 
     return $app['twig']->render('app.twig', [
       'user' => $app['user'],
-      'events' => $events,
+      'lastPostPublishEvent' => $lastPostPublishEvent,
       'primaryEmail' => $email ? $email['email'] : null
     ]);
   })->bind('app');
