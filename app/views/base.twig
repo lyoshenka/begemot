@@ -19,6 +19,18 @@
 
       <div class="grid">
         <div class="grid-item">
+          {% for noticeType in ['error', 'warning', 'success', 'info'] %}
+            {% for flashMessage in app.session.flashbag.get(noticeType) %}
+              <div class="well {{ noticeType }}-box">
+                {{ flashMessage }}
+              </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="grid-item">
           {% block body %}{% endblock %}
         </div>
       </div>
@@ -26,7 +38,7 @@
       <div class="grid">
         <div class="grid-item">
           <footer>
-            Questions? Comments? Bugs? Email me: <a href="mailto:alex@grin.io">alex@grin.io</a>
+            Questions? Comments? Bugs? Email me: <a href="mailto:{{ app.my_email }}">{{ app.my_email }}</a>
           </footer>
         </div>
       </footer>

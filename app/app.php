@@ -14,4 +14,9 @@ class MyApp extends Silex\Application {
     $subReq = Symfony\Component\HttpFoundation\Request::create($path, $requestType);
     return $this->handle($subReq, Symfony\Component\HttpKernel\HttpKernelInterface::SUB_REQUEST);
   }
+
+  function addFlash($flashType, $message)
+  {
+    $this['session']->getFlashBag()->add($flashType, $message);
+  }
 }

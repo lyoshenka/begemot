@@ -12,6 +12,7 @@ require_once __DIR__.'/app.php';
 $app = new MyApp();
 //$app['debug'] = true;
 
+$app['my_email'] = 'alex@grin.io';
 
 // Initialize Services
 require_once __DIR__.'/services.php';

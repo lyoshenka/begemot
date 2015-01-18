@@ -105,13 +105,14 @@ a.unstyled-link {
 @success-color: #5cb85c;
 @warning-color: #f0ad4e;
 @error-color: #d9534f;
-@info-color: #5bc0de;
+@info-color: @base-link-color; //#5bc0de;
 
 .message-box(@color) {
   margin: 0 0 @base-rem-unit;
   padding: @base-rem-unit;
   border: solid 3px @color;
   background-color: lighten(@color, 35%);
+  color: darken(@color, 40%);
 }
 
 .success-box { .message-box(@success-color); }

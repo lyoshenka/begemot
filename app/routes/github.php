@@ -207,7 +207,8 @@ function setupGithubRoutes($app) {
     {
       $msg = 'Error from GitHub: ' . $response['error'];
       $app['monolog']->addError($msg);
-      die($msg);
+      $app->addFlash('error', $msg . '. Please contact ' . $app['my_email'] . ' for assistance.');
+      return $app->redirect($app->path('home'));
     }
 
     $grantedScopes = explode(',', $response['scope']);
@@ -221,9 +222,10 @@ function setupGithubRoutes($app) {
     }
     if (!in_array('user', $grantedScopes))
     {
-      $msg = 'User scope required.';
+      $msg = 'User scope required';
       $app['monolog']->addError($msg);
-      die($msg);
+      $app->addFlash('error', $msg . '. Please contact ' . $app['my_email'] . ' for assistance.');
+      return $app->redirect($app->path('home'));
     }
 
     $user = $app['pdo']->fetchOne('SELECT * FROM user WHERE github_token = :token', [':token' => $response['access_token']]);
@@ -267,7 +269,8 @@ function setupGithubRoutes($app) {
       // that means primary address is not verified. gotta be safe.
       $msg = 'Your primary address is not verified. Please verify your address on GitHub, then log in again.';
       $app['monolog']->addError($msg);
-      die($msg);
+      $app->addFlash('error', $msg . ' Please contact ' . $app['my_email'] . ' for assistance.');
+      return $app->redirect($app->path('home'));
     }
 
     $newEmailsAlreadyInDb = [];
