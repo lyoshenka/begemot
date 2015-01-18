@@ -1,0 +1,15 @@
+{% extends "base.twig" %}
+
+{% block body %}
+  <h2>Events</h2>
+  <span class="text-light">This is a log of latest events that are related to your account.</span>
+  <table class="table-border-rows events-table">
+    {% for event in events %}
+      <tr>
+        <td><strong>{{ event.type }}</strong>{% if event.description %} &ndash; {{ event.description }}{% endif %}</td>
+        <td class="text-right text-light" title="{{ event.created_at }}">{{ event.created_at | timeago }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <a href="{{ path('app') }}">← Back</a>
+{% endblock %}

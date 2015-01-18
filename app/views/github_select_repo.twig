@@ -1,12 +1,12 @@
 {% extends "base.twig" %}
 
 {% block body %}
-  <h1>Select Repository</h1>
+  <h2>Select Repository</h2>
 
   {% include "partials/form_errors.twig" with {'errors': errors} %}
 
   <form method="POST" action="{{ app.path('github_select_repo') }}">
-    <label for="repo">Choose the repository where your blog lives</label>
+    <p><label for="repo">Choose the repository where your blog lives</label></p>
     <p><select id="repo" name="repo">
       <option value=""></option>
       {% for repo in repos %}

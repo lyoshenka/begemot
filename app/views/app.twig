@@ -1,42 +1,25 @@
 {% extends "base.twig" %}
 
+{% set mailto = 'mailto:' ~ app['config.post_email'] ~ '?subject=Post+title+goes+in+subject&body=Post+content+goes+here' %}
+
 {% block body %}
   <p class="island primary">
-    Email your posts to <strong><a class="unstyled-link" href="mailto:{{ app['config.post_email'] }}?subject=Post+title+goes+in+subject&body=---%0Alayout%3A+post%0Atags%3A+%5Btag1%2Ctag2%5D%0A---%0A%0APost+content+goes+here">{{ app['config.post_email'] }}</a></strong>
+    Email your posts to
+    <strong><a class="unstyled-link" href="{{ mailto }}" target="_blank">{{ app['config.post_email'] }}</a></strong>.
+    {# <a href="{{ path('about') }}">Need help?</a> #}
   </p>
   <p>
-    <div style="overflow:hidden">
-      <h2 class="crossbars">Settings</h2>
-    </div>
-    <p>
-      Email Address: {{ primaryEmail }}<br>
-      Repository: {{ user.github_repo }}<br>
-      Branch: {{ user.github_branch}}<br>
-      Directory: {{ user.posts_path }}
-    </p>
-    <div>
-      <a href="{{ path('github_select_repo') }}">Edit</a>
+    <table>
+      <tr><th width="20%">Email Address</th><td>{{ primaryEmail }}</td></tr>
+      <tr><th>Repository</th><td>{{ user.github_repo }}</td></tr>
+      <tr><th>Branch</th><td>{{ user.github_branch}}</td></tr>
+      <tr><th>Directory</th><td>{{ user.posts_path }}</td></tr>
+    </table>
+    <div class="grid medium-grid-gutter-half text-center">
+      <div class="grid-item one-half medium-one-fourth"><a href="{{ path('github_select_repo') }}">Edit Settings</a></div>
+      <div class="grid-item one-half medium-one-fourth"><a href="{{ path('events') }}">Event Log</a></div>
+      <div class="grid-item one-half medium-one-fourth"><a href="{{ path('about') }}">Help</a></div>
+      <div class="grid-item one-half medium-one-fourth"><a href="{{ path('logout') }}">Logout</a></div>
     </div>
   </p>
-
-  {% if events %}
-    <p>
-      <div style="overflow:hidden">
-        <h2 class="crossbars">Events</h2>
-      </div>
-      <span class="text-light">This is a log of events that are related to your account.</span>
-      <table class="table-border-rows events-table">
-        {% for event in events %}
-          <tr>
-            <td><strong>{{ event.type }}</strong>{% if event.description %} &ndash; {{ event.description }}{% endif %}</td>
-            <td class="text-right text-light" title="{{ event.created_at }}">{{ event.created_at | timeago }}</td>
-          </tr>
-        {% endfor %}
-      </table>
-    </p>
-  {% endif %}
-
-  <div>
-    <a href="{{ path('logout') }}">Logout</a>
-  </div>
 {% endblock %}

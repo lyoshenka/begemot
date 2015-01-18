@@ -4,12 +4,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints as Assert;
 
-initRoutes($app);
-function initRoutes($app) {
+initMainRoutes($app);
+function initMainRoutes($app) {
+  $routes = $app['controllers_factory'];
 
-  require_once __DIR__.'/routes/github.php';
-
-  $app->match('/', function(Request $request) use($app) {
+  $routes->match('/', function(Request $request) use($app) {
     if ($app['user'])
     {
       return $app->redirect($app->path('app'));
@@ -21,7 +20,7 @@ function initRoutes($app) {
 
 
 
-  $app->get('/logout', function() use($app) {
+  $routes->get('/logout', function() use($app) {
     $app['session']->set('user_id', null);
     $app['session']->save();
     return $app->redirect($app->path('home'));
@@ -30,7 +29,7 @@ function initRoutes($app) {
 
 
 
-  $app->get('/app', function() use($app) {
+  $routes->get('/app', function() use($app) {
     if (!$app['user']) // if logged in, go to app
     {
       return $app->redirect($app->path('home'));
@@ -56,6 +55,13 @@ function initRoutes($app) {
       return $app->forward($app->path('github_select_path'));
     }
 
+    if ($app['session']->get('just_created_new_account'))
+    {
+      $app['session']->remove('just_created_new_account');
+      $app['session']->save();
+      return $app->forward($app->path('about').'?new_account=1');
+    }
+
     $events = $app['pdo']->fetchAssoc('SELECT * FROM event WHERE user_id = ? ORDER BY created_at DESC LIMIT 10', $app['user']['id']);
     $email = $app['pdo']->fetchOne('SELECT * FROM email WHERE user_id = ? AND is_primary = 1 LIMIT 1', $app['user']['id']);
 
@@ -68,9 +74,31 @@ function initRoutes($app) {
 
 
 
+  $routes->get('/events', function() use($app) {
+    if (!$app['user']) // if logged in, go to app
+    {
+      return $app->redirect($app->path('home'));
+    }
+
+    $events = $app['pdo']->fetchAssoc('SELECT * FROM event WHERE user_id = ? ORDER BY created_at DESC LIMIT 10', $app['user']['id']);
+
+    return $app['twig']->render('events.twig', [
+      'user' => $app['user'],
+      'events' => $events,
+    ]);
+  })->bind('events');
 
 
-  $app->match('/mandrill_hook_endpoint', function(Request $request) use($app) {
+
+  $routes->get('/about', function() use($app) {
+    return $app['twig']->render('about.twig', [
+      'user' => $app['user'],
+      'newAccount' => $app['request']->query->get('new_account')
+    ]);
+  })->bind('about');
+
+
+  $routes->match('/mandrill_hook_endpoint', function(Request $request) use($app) {
     if ($request->getMethod() == 'HEAD')
     {
       return new Response('ok');
@@ -166,7 +194,5 @@ function initRoutes($app) {
 
 
 
-  $app->error(function(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $code) use ($app) {
-    return $app['twig']->render('404.twig');
-  });
+  $app->mount('/', $routes);
 }

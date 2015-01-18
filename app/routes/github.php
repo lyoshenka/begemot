@@ -238,6 +238,7 @@ function setupGithubRoutes($app) {
       ]);
       $userId = $app['pdo']->lastInsertId();
       $app['log_event']('user.create', null, $userId);
+      $app['session']->set('just_created_new_account', true);
     }
     else
     {

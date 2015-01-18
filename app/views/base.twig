@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     {# <meta http-equiv="ClearType" content="true"> #}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {# <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"> #}
     <title>Begemot</title>
     <link rel='stylesheet' type='text/css' href="/css/style.css">
     <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=PT+Serif:400,700'>
@@ -14,7 +13,7 @@
     <div class="wrapper">
       <header>
         <div>
-          <h1><img class="logo" src="/img/begemot.png" /> <a href="{{ app.path('home') }}">Begemot</a> <small>Jekyll by Email</small></h1>
+          <h2><img class="logo" src="/img/begemot.png" /> <a href="{{ app.path('home') }}">Begemot</a> <small>Jekyll by Email</small></h2>
         </div>
       </header>
 
@@ -24,9 +23,11 @@
         </div>
       </div>
 
-      <footer class="grid">
+      <div class="grid">
         <div class="grid-item">
-          Made with &#9829; by <a href="mailto:grin@grin.io">Alex Grin</a>
+          <footer>
+            Questions? Comments? Bugs? Email me: <a href="mailto:grin@grin.io">alex@grin.io</a>
+          </footer>
         </div>
       </footer>
 
@@ -35,15 +36,20 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
         <script>window.jQuery || document.write("<script src=\"js/vendor/jquery-2.1.1.min.js\"><\/script>")</script>
 
-        <!-- Scripts -->
         <script src="/js/plugins.js"></script>
         <script src="/js/main.js"></script>
-      </div>
 
-      {#
-      <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-      <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-       #}
+        {% if not app.debug %}
+          <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            ga('create', 'UA-48451015-3', 'auto');
+            ga('send', 'pageview');
+          </script>
+        {% endif %}
+      </div>
    </div>
   </body>
 </html>

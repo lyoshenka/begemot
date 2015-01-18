@@ -1,0 +1,45 @@
+{% extends "base.twig" %}
+
+{% block body %}
+
+  <h2>How to Post</h2>
+  <ol>
+    <li>Compose a new email to <a href="mailto:post@post.begemot.io">post@post.begemot.io</a>.</li>
+    <li>Put the title of your post in the subject.</li>
+    <li>Write your post in the email body.</li>
+    <li>Send it!</li>
+    <li>Pat yourself on the back (if flexible enough).</li>
+  </ol>
+  <p>
+    Our mail gnomes will process your email and create a new post in the <code>{{ user ? user['posts_path'] : '_posts' }}</code> directory of your repo.
+    Github will pick up this post and put it on your blog. We'll also send you an email to confirm that we got your post.
+  </p>
+  <p>
+    <em>Advanced users:</em>
+    You don't have to include the FrontMatter, we'll generate it for you. But you can include it if you want tags or other custom fields.
+  </p>
+
+  {% if newAccount %}
+    <a class="button button-primary" href="{{ path('app') }}">Got it</a>
+  {% else %}
+    <h2>Privacy</h2>
+    <ul>
+      <li>I don't store your emails.</li>
+      <li>I will not sell your information to anyone.</li>
+      <li>I use Google Analytics on this site.</li>
+      <li>I have never received a National Security Letter.</li>
+     </ul>
+
+    <h2>Money</h2>
+    <p>
+      I plan to keep this <strong>free</strong> forever. If this gets so popular that I can't afford the upkeep anymore, I'll think of something.
+    </p>
+
+    {% if user %}
+      <a href="{{ path('app') }}">← Back</a>
+    {% else %}
+      <a class="button button-primary" href="{{ path('github_connect') }}">Get Started</a>
+    {% endif %}
+  {% endif %}
+
+{% endblock %}

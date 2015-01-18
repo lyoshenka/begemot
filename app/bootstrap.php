@@ -12,6 +12,16 @@ require_once __DIR__.'/app.php';
 $app = new MyApp();
 $app['debug'] = true;
 
+
+// Initialize Services
 require_once __DIR__.'/services.php';
 
-require_once __DIR__.'/routes.php';
+
+// Mount Routes
+require_once __DIR__.'/routes/main.php';
+require_once __DIR__.'/routes/github.php';
+
+// If no route matches, 404
+$app->error(function(\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $code) use ($app) {
+  return $app['twig']->render('404.twig');
+});
