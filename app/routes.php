@@ -57,8 +57,13 @@ function initRoutes($app) {
     }
 
     $events = $app['pdo']->fetchAssoc('SELECT * FROM event WHERE user_id = ? ORDER BY created_at DESC LIMIT 10', $app['user']['id']);
+    $email = $app['pdo']->fetchOne('SELECT * FROM email WHERE user_id = ? AND is_primary = 1 LIMIT 1', $app['user']['id']);
 
-    return $app['twig']->render('app.twig', ['user' => $app['user'], 'events' => $events]);
+    return $app['twig']->render('app.twig', [
+      'user' => $app['user'],
+      'events' => $events,
+      'primaryEmail' => $email ? $email['email'] : null
+    ]);
   })->bind('app');
 
 

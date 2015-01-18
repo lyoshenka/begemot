@@ -1,90 +1,41 @@
-@import 'cardinal/cardinal.less';
+/* ================================================================== *\
 
-small {
-  font-size: 60%;
-  color: @gray-darker;
-}
+   Name: Your Project Name
+   Info: a short description of this project.
+   Link: http://yourdomain.com
 
-header {
-  margin-top: @base-rem-unit;
-  border-bottom: solid 1px @gray;
-  margin-bottom: @base-rem-unit;
-  h1 a {
-    text-decoration: none;
-    color: @black;
-  }
-}
-@media only screen and (min-width: @grid-breakpoint-medium) {
-  header {
-    margin-top: @base-rem-unit * 2;
-    border-bottom: none;
-  }
-}
+   TABLE OF CONTENTS
+   ---------------------------
+   (Ctrl/Cmd + F, and search for `$section` to jump to a section)
+   01. Base................Lay the foundation
+   02. Typography..........Core styling for typography elements
+       a. Links............Default styles for anchor links
+       b. Headings.........Styles for site headings
+       c. Text alignment...Classes for aligning text
+   03. Layout..............Common layout items (grids, wrappers, etc.)
+       a. Areas............Strips, wrappers, islands, wells, etc.
+       b. Grids............Mobile-first, responsive grid system
+       c. Floats...........Classes to clear floated elements
+       d. Show/hide........Classes for toggling content
+   04. Embedded content....Markup elements that use external content
+   05. Syntax..............Pre-formatted text and other code styles
+   06. Tables..............Basic treatment for tabular data
+   07. Forms...............Styling for elements that make up a form
+   08. Buttons.............States, sizes, and colors for buttons
+   09. Main................Your styles go here!
+   10. Print...............Inlined, barebones print styles
 
-.wrapper {
-  //max-width: 35rem;
-  max-width: 40rem;
-}
+\* ================================================================== */
 
-.hidden {
-  display: none;
-}
-
-.text-light {
-  color: @gray-darker;
-}
-
-.events-table {
-  font-size: 80%;
-  line-height: 80%;
-  tr:first-child td {
-    border-top: none;
-  }
-}
-
-.primary {
-  background-color: @button-primary-background;
-  color: @white;
-  a {
-    color: @white;
-    text-decoration: none;
-    &:hover {
-        text-decoration: underline;
-    }
-  }
-}
-
-@success-color: #5cb85c;
-@warning-color: #f0ad4e;
-@error-color: #d9534f;
-@info-color: #5bc0de;
-
-.message-box(@color) {
-  margin: 0 0 @base-rem-unit;
-  padding: @base-rem-unit;
-  border: solid 3px @color;
-  background-color: lighten(@color, 35%);
-}
-
-.success-box { .message-box(@success-color); }
-.warning-box { .message-box(@warning-color); }
-.error-box   { .message-box(@error-color); }
-.info-box    { .message-box(@info-color); }
-
-
-.form-error {
-  color: @error-color;
-}
-
-
-img.logo {
-  height: 80px;
-  width: 80px;
-}
-@media only screen and (min-width: @grid-breakpoint-medium) {
-  img.logo {
-    height: 120px;
-    width: 120px;
-  }
-}
-
+@import 'cardinal/variables.less';        // Global variables used in the project
+@import 'cardinal/normalize.less';        // Normalize all HTML elements
+@import 'cardinal/base.less';             // Lay the foundation
+@import 'cardinal/typography.less';       // Core styling for typography elements
+@import 'cardinal/layout.less';           // Common layout items (grids, wrappers, etc.)
+@import 'cardinal/embedded-content.less'; // Markup elements that use external content
+@import 'cardinal/syntax.less';           // Pre-formatted text and other code styles
+@import 'cardinal/tables.less';           // Basic treatment for tabular data
+@import 'cardinal/forms.less';            // Styling for elements that make up a form
+@import 'cardinal/buttons.less';          // States, sizes, and colors for buttons
+@import 'custom.less';                    // Your styles go here!
+@import 'cardinal/print.less';            // Inlined, barebones print styles
