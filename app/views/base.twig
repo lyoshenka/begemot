@@ -17,17 +17,19 @@
           <h1><img class="logo" src="/img/begemot.png" /> <a href="{{ app.path('home') }}">Begemot</a> <small>Jekyll by Email</small></h1>
         </div>
       </header>
+
       <div class="grid">
         <div class="grid-item">
           {% block body %}{% endblock %}
         </div>
       </div>
 
-      {#
       <footer class="grid">
-        Begemot | About | Pricing | Contact
+        <div class="grid-item">
+          Made with &#9829; by <a href="mailto:grin@grin.io">Alex Grin</a>
+        </div>
       </footer>
-      #}
+
 
       <div class="hidden">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
