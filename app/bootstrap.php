@@ -10,7 +10,7 @@ require_once __DIR__.'/config.php';
 require_once __DIR__.'/app.php';
 
 $app = new MyApp();
-$app['debug'] = true;
+//$app['debug'] = true;
 
 
 // Initialize Services
