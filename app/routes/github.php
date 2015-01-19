@@ -173,7 +173,7 @@ function setupGithubRoutes($app) {
 
     return $app->redirect('https://github.com/login/oauth/authorize?' . http_build_query([
       'client_id' => $app['github.app_client_id'],
-      'scope' => 'user,public_repo,repo',
+      'scope' => 'user,public_repo', // add 'repo' for private repos
       'state' => $state
     ]));
   })
