@@ -59,7 +59,7 @@ function initMainRoutes($app) {
     {
       $app['session']->remove('just_created_new_account');
       $app['session']->save();
-      return $app->forward($app->path('about').'?new_account=1');
+      return $app->redirect($app->path('about').'?new_account=1');
     }
 
     $lastPostPublishEvent = $app['pdo']->fetchOne('SELECT * FROM event WHERE user_id = ? AND type = ? ORDER BY created_at DESC LIMIT 1', [$app['user']['id'], 'post.publish']);
