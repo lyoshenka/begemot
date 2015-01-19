@@ -1,6 +1,6 @@
 /vendor/
 /app/config.php
 /composer.phar
-/dev.log
+/*.log
 /web/css/*
 .Trash-1000/
