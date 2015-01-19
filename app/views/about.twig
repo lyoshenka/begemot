@@ -21,7 +21,10 @@
   </p>
 
   {% if newAccount %}
-    <a class="button button-primary" href="{{ path('app') }}">Got it</a>
+    <a class="button button-primary" href="{{ path('app') }}"
+       data-ga="{{ {'category':'button','action':'click','label':'about-goto-app'} | json_encode() }}">
+      Got it
+    </a>
   {% else %}
     <h2>Privacy</h2>
     <p>
@@ -37,7 +40,10 @@
     {% if user %}
       <a href="{{ path('app') }}">← Back</a>
     {% else %}
-      <a class="button button-primary" href="{{ path('github_connect') }}">Get Started</a>
+      <a class="button button-primary" href="{{ path('github_connect') }}"
+         data-ga="{{ {'category':'button','action':'click','label':'about-get-started'} | json_encode() }}">
+        Get Started
+      </a>
     {% endif %}
   {% endif %}
 

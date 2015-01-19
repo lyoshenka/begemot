@@ -24,10 +24,18 @@
       <tr><th>Directory</th><td>{{ user.posts_path }}</td></tr>
     </table>
     <div class="grid medium-grid-gutter-half text-center">
-      <div class="grid-item one-half medium-one-fourth"><a href="{{ path('github_select_repo') }}">Edit Settings</a></div>
-      <div class="grid-item one-half medium-one-fourth"><a href="{{ path('events') }}">Event Log</a></div>
-      <div class="grid-item one-half medium-one-fourth"><a href="{{ path('about') }}">Help</a></div>
-      <div class="grid-item one-half medium-one-fourth"><a href="{{ path('logout') }}">Logout</a></div>
+      <div class="grid-item one-half medium-one-fourth">
+        <a href="{{ path('github_select_repo') }}" data-ga="{{ {'category':'link','action':'click','label':'app-edit-settings'} | json_encode() }}">Edit Settings</a>
+      </div>
+      <div class="grid-item one-half medium-one-fourth">
+        <a href="{{ path('events') }}" data-ga="{{ {'category':'link','action':'click','label':'app-event-log'} | json_encode() }}">Event Log</a>
+      </div>
+      <div class="grid-item one-half medium-one-fourth">
+        <a href="{{ path('about') }}" data-ga="{{ {'category':'link','action':'click','label':'app-help'} | json_encode() }}">Help</a>
+      </div>
+      <div class="grid-item one-half medium-one-fourth">
+        <a href="{{ path('logout') }}" data-ga="{{ {'category':'link','action':'click','label':'app-logout'} | json_encode() }}">Logout</a>
+      </div>
     </div>
   </p>
 {% endblock %}

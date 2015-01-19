@@ -9,13 +9,17 @@
     <meta name="keywords" content="jekyll,github,blog,email,blogging">
     <title>Begemot: Post to your Github-powered Jekyll blog via Email</title>
     <link rel='stylesheet' type='text/css' href="/css/style.css">
-    <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=PT+Serif:400,700'>
+    <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=PT+Serif:400,700'>
   </head>
   <body>
     <div class="wrapper">
       <header>
         <div>
-          <h2><img class="logo" src="/img/begemot.png" /> <a href="{{ app.path('home') }}">Begemot</a> <small>Jekyll by Email</small></h2>
+          <h2>
+            <img class="logo" src="/img/begemot.png" />
+            <a href="{{ app.path('home') }}" data-ga="{{ {'category':'link','action':'click','label':'header-home-link'} | json_encode() }}">Begemot</a>
+            <small>Jekyll by Email</small>
+          </h2>
         </div>
       </header>
 

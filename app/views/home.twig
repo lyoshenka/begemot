@@ -7,10 +7,17 @@
   </p>
 
   <p>
-    <a class="button button-primary button-block" href="{{ path('github_connect') }}">Connect with GitHub</a>
+    <a class="button button-primary button-block"
+       href="{{ path('github_connect') }}"
+       data-ga="{{ {'category':'button','action':'click','label':'home-connect'} | json_encode() }}">
+      Connect with GitHub
+    </a>
   </p>
 
   <p class="text-center">
-    <a href="{{ path('about') }}">How does it work?</a>
+    <a href="{{ path('about') }}"
+       data-ga="{{ {'category':'button','action':'click','label':'home-about'} | json_encode() }}">
+      How does it work?
+    </a>
   </p>
 {% endblock %}
