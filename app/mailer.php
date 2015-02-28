@@ -56,7 +56,7 @@ class BgMailer extends Mandrill
       'track_opens' => true,
       'to' => [['type' => 'to', 'email' => $email]],
       'subject' => 'Post Error',
-      'html' => $this->cssInliner->render($this->app['twig']->render('emails/post_received.twig', [
+      'html' => $this->cssInliner->render($this->app['twig']->render('emails/post_error.twig', [
         'title' => $postTitle,
         'text' => $errorMessage
       ])),
