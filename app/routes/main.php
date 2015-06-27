@@ -139,7 +139,7 @@ function initMainRoutes($app) {
       }
 
       $frontMatterData['title'] = $postTitle;
-      $frontMatterData['date'] = date('Y-m-d H:i:s');
+      $frontMatterData['date'] = date('Y-m-d H:i:s') . ' UTC';
 
       if (stripos($user['github_repo'], 'lyoshenka') === 0)
       {
@@ -184,7 +184,7 @@ function initMainRoutes($app) {
           $app->log('Error creating file on github: ' . $e);
           $app['log_event']('post.error', $postTitle, $user['id']);
           $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle,
-            'Got an error from GitHub: "' . $e->getMessage . '". If this doesn\'t help clear things up, please forward this email to ' . $app['config.support_email']
+            'Got an error from GitHub: "' . $e->getMessage() . '". If this doesn\'t help clear things up, please forward this email to ' . $app['config.support_email']
           );
           $app->log('Sent publish error email');
         }
