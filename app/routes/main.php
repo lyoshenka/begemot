@@ -128,28 +128,31 @@ function initMainRoutes($app) {
       $postTitle = $event['msg']['subject'];
       $postText = trim($event['msg']['text'])."\n";
 
+      $frontMatterData = [];
+      $body = $postText;
 
-      if (strpos($postText, '---') !== 0)
+      if (strpos($postText, '---') === 0)
       {
-        $frontMatterData = [
-          'title' => $postTitle,
-          'date' => date('Y-m-d H:i:s')
-        ];
-
-        if (stripos($user['github_repo'], 'lyoshenka') === 0)
-        {
-          $frontMatterData['_id_'] = '';
-          for ($i = 0; $i < 16; $i++)
-          {
-            $frontMatterData['_id_'] .= rand(0, 9);
-          }
-        }
-
-        $frontMatter = Symfony\Component\Yaml\Yaml::dump($frontMatterData);
-
-        $postText = "---\n" . $frontMatter . "---\n\n" . $postText;
+        $parts = explode("\n---\n", "\n".$postText, 3);
+        $frontMatterData = Symfony\Component\Yaml\Yaml::parse($parts[1]);
+        $body = trim($parts[2]);
       }
 
+      $frontMatterData['title'] = $postTitle;
+      $frontMatterData['date'] = date('Y-m-d H:i:s');
+
+      if (stripos($user['github_repo'], 'lyoshenka') === 0)
+      {
+        $frontMatterData['_id_'] = '';
+        for ($i = 0; $i < 16; $i++)
+        {
+          $frontMatterData['_id_'] .= rand(0, 9);
+        }
+      }
+
+      $frontMatter = Symfony\Component\Yaml\Yaml::dump($frontMatterData);
+
+      $postText = "---\n" . $frontMatter . "---\n\n" . $body;
 
       $filename = date('Y-m-d') . '-' . rtrim(preg_replace('/[^a-z0-9]+/', '-', strtolower($postTitle)), '-') . '.md';
 
