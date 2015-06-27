@@ -109,7 +109,7 @@ class CleanLoginsCommand extends \Knp\Command\Command {
 
   protected function execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output) {
     $app = $this->getSilexApplication();
-    $count = $app['pdo']->exec('DELETE FROM onetime_login WHERE created_at < SUBTIME(NOW(), "01:00:00")');
+    $count = $app['pdo']->execute('DELETE FROM onetime_login WHERE created_at < SUBTIME(?, "01:00:00")', [date('Y-m-d H:i:s')]);
     $output->writeln('Deleted ' . $count . ' expired logins.');
   }
 }

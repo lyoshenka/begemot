@@ -169,8 +169,8 @@ function initServices($app) {
   \*------------------------------*/
   $app['log_event'] = $app->protect(function($type, $description, $userId) use($app) {
     $stmt = $app['pdo']->execute(
-      'INSERT INTO event SET user_id = ?, type = ?, description = ?, created_at = NOW()',
-      [$userId, $type, $description]
+      'INSERT INTO event SET user_id = ?, type = ?, description = ?, created_at = ?',
+      [$userId, $type, $description, date('Y-m-d H:i:s')]
     );
   });
 
@@ -180,7 +180,7 @@ function initServices($app) {
   \*------------------------------*/
   $app['create_onetime_login'] = $app->protect(function($userId) use($app) {
     $hash = sha1(time().'mumb0jum7bo');
-    $app['pdo']->execute('INSERT INTO onetime_login SET hash = ?, user_id = ?, created_at = NOW()', [$hash,$userId]);
+    $app['pdo']->execute('INSERT INTO onetime_login SET hash = ?, user_id = ?, created_at = ', [$hash, $userId, date('Y-m-d H:i:s')]);
     return $hash;
   });
 
