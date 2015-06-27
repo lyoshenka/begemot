@@ -172,7 +172,8 @@ function initMainRoutes($app) {
       }
       catch (Github\Exception\RuntimeException $e)
       {
-        if (stripos($e->getMessage(), 'Missing required keys "sha" in object') !== false)
+        if (stripos($e->getMessage(), 'Missing required keys "sha" in object') !== false ||
+            stripos($e->getMessage(), 'Invalid request. "sha" wasn\'t supplied') !== false)
         {
           $app->log('Post exists for filename "' . $filename . '"');
           $app['log_event']('post.error', $postTitle, $user['id']);
