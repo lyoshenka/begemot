@@ -1,0 +1,13 @@
+<?php
+
+const GITHUB_APP_CLIENT_ID = '';
+const GITHUB_APP_CLIENT_SECRET = '';
+
+const MANDRILL_API_KEY = '';
+
+const MYSQL_USER = '';
+const MYSQL_PASS = '';
+const MYSQL_HOST = '';
+const MYSQL_DB   = '';
+
+const DEV_EMAIL = ''; // developer email for debugging info
