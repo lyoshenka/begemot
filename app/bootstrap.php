@@ -5,6 +5,15 @@ ini_set('display_errors', 1);
 date_default_timezone_set('UTC');
 
 set_error_handler(function ($type, $message, $file = null, $line = null, $context = null) {
+  if ($file !== null && $line !== null)
+  {
+    $errorLine = explode("\n", file_get_contents($file))[$line-1];
+    if (strpos($errorLine, '@') !== false && !preg_match('/@[a-z0-9-_.]+\.[a-z]{2,6}/i', $errorLine))
+    {
+      return; // error was probably meant to be ignored
+    }
+  }
+
   $errorConstants = [
     'E_ERROR','E_WARNING','E_PARSE','E_NOTICE','E_CORE_ERROR','E_CORE_WARNING',
     'E_COMPILE_ERROR','E_COMPILE_WARNING','E_USER_ERROR','E_USER_WARNING','E_USER_NOTICE',
