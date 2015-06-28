@@ -133,7 +133,7 @@ function initMainRoutes($app) {
 
       if (strpos($postText, '---') === 0)
       {
-        $parts = explode("\n---\n", "\n".$postText, 3);
+        $parts = explode("\n---\n", "\n".str_replace("---\u200b\n","---\n",$postText), 3);
         $frontMatterData = Symfony\Component\Yaml\Yaml::parse($parts[1]);
         $body = trim($parts[2]);
       }
