@@ -3,6 +3,7 @@
 ini_set('error_reporting', E_ALL|E_STRICT);
 ini_set('display_errors', 1);
 date_default_timezone_set('UTC');
+mb_internal_encoding('UTF-8');
 
 set_error_handler(function ($type, $message, $file = null, $line = null, $context = null) {
   if ($file !== null && $line !== null)
