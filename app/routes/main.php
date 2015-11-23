@@ -125,8 +125,13 @@ function initMainRoutes($app) {
         continue; // user not found. we could notify them, but dont wanna deal with spam
       }
 
-      $postTitle = $event['msg']['subject'];
       $postText = trim($event['msg']['text'])."\n";
+
+      $subject = trim($event['msg']['subject']);
+      $tagRegex = '/#[^ ]+$/';
+      preg_match($tagRegex, $subject, $matches);
+      $tags = $matches ? explode(',', ltrim($matches[0],'#')) : [];
+      $postTitle = trim(preg_replace($tagRegex, '', $subject));
 
       $frontMatterData = [];
       $body = $postText;
@@ -135,7 +140,7 @@ function initMainRoutes($app) {
       {
         $parts = explode("\n---\n", "\n".str_replace("---".hex2bin('e2808b')."\n","---\n",$postText), 3); //e2808b = zero-width space
 
-	try 
+	try
 	{
           $frontMatterData = Symfony\Component\Yaml\Yaml::parse($parts[1]);
 	}
@@ -145,13 +150,17 @@ function initMainRoutes($app) {
           $app['log_event']('post.error', $postTitle, $user['id']);
           $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle, 'Error parsing YAML frontmatter. ' . $pe->getMessage());
           $app->log('Sent yaml parse error email');
- 	  return new Response('ok');	  
+ 	  return new Response('ok');
 	}
         $body = trim($parts[2]);
       }
 
       $frontMatterData['title'] = $postTitle;
       $frontMatterData['date'] = date('Y-m-d H:i:s') . ' UTC';
+      if ($tags)
+      {
+        $frontMatterData['tags'] = $tags;
+      }
 
       if (stripos($user['github_repo'], 'lyoshenka') === 0)
       {
