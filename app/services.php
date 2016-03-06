@@ -89,9 +89,10 @@ function initServices($app) {
 
   require_once __DIR__.'/mailer.php';
 
-  $app['mandrill.token'] = MANDRILL_API_KEY;
+  $app['mailgun.apikey'] = MAILGUN_API_KEY;
+  $app['mailgun.domain'] = MAILGUN_DOMAIN;
   $app['mailer'] = $app->share(function($app) {
-    return new BgMailer($app, $app['mandrill.token']);
+    return new BgMailer($app, $app['mailgun.apikey'], $app['mailgun.domain']);
   });
 
 

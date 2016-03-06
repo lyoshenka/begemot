@@ -98,78 +98,76 @@ function initMainRoutes($app) {
   })->bind('about');
 
 
-  $routes->match('/mandrill_hook_endpoint', function(Request $request) use($app) {
+  $routes->match('/mailgun_webhook', function(Request $request) use($app) {
     if ($request->getMethod() == 'HEAD')
     {
       return new Response('ok');
     }
 
-    $data = $request->get('mandrill_events');
-    if (!$data)
+    $validRequest = hash_hmac('sha256', $request->get('timestamp') . $request->get('token'), MAILGUN_API_KEY) === $request->get('signature');
+    if (!$validRequest)
     {
-      return new Response('mandrill_events is empty', 422);
+      return $app->abort(403, "Invalid signature");
     }
 
-    $events = json_decode($data, true);
-    foreach($events as $event)
+
+    $senderEmail = $request->get('sender');
+
+    $app->log('got email from ' . $senderEmail);
+
+    $user = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ?', $senderEmail);
+
+    if (!$user)
     {
-      $senderEmail = $event['msg']['from_email'];
+      $app->log('user not found');
+      continue; // user not found. we could notify them, but dont wanna deal with spam
+    }
 
-      $app->log('got email from ' . $senderEmail);
+    $postText = trim($request->get('body-plain'))."\n";
 
-      $user = $app['pdo']->fetchOne('SELECT u.* FROM user u INNER JOIN email e ON u.id = e.user_id AND e.email = ?', $senderEmail);
+    $subject = trim($request->get('subject'));
+    $tagRegex = '/#[^ ]+$/';
+    preg_match($tagRegex, $subject, $matches);
+    $tags = $matches ? explode(',', ltrim($matches[0],'#')) : [];
+    $postTitle = trim(preg_replace($tagRegex, '', $subject));
 
-      if (!$user)
+    $frontMatterData = [];
+    $body = $postText;
+
+    if (strpos($postText, '---') === 0)
+    {
+      $parts = explode("\n---\n", "\n".str_replace("---".hex2bin('e2808b')."\n","---\n",$postText), 3); //e2808b = zero-width space
+
+      try
       {
-        $app->log('user not found');
-        continue; // user not found. we could notify them, but dont wanna deal with spam
+        $frontMatterData = Symfony\Component\Yaml\Yaml::parse($parts[1]);
       }
-
-      $postText = trim($event['msg']['text'])."\n";
-
-      $subject = trim($event['msg']['subject']);
-      $tagRegex = '/#[^ ]+$/';
-      preg_match($tagRegex, $subject, $matches);
-      $tags = $matches ? explode(',', ltrim($matches[0],'#')) : [];
-      $postTitle = trim(preg_replace($tagRegex, '', $subject));
-
-      $frontMatterData = [];
-      $body = $postText;
-
-      if (strpos($postText, '---') === 0)
+      catch (Symfony\Component\Yaml\Exception\ParseException $pe)
       {
-        $parts = explode("\n---\n", "\n".str_replace("---".hex2bin('e2808b')."\n","---\n",$postText), 3); //e2808b = zero-width space
-
-	try
-	{
-          $frontMatterData = Symfony\Component\Yaml\Yaml::parse($parts[1]);
-	}
-	catch (Symfony\Component\Yaml\Exception\ParseException $pe)
-	{
-          $app->log('Parse exception: ' . $pe->__toString());
-          $app['log_event']('post.error', $postTitle, $user['id']);
-          $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle, 'Error parsing YAML frontmatter. ' . $pe->getMessage());
-          $app->log('Sent yaml parse error email');
- 	  return new Response('ok');
-	}
-        $body = trim($parts[2]);
+        $app->log('Parse exception: ' . $pe->__toString());
+        $app['log_event']('post.error', $postTitle, $user['id']);
+        $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle, 'Error parsing YAML frontmatter. ' . $pe->getMessage());
+        $app->log('Sent yaml parse error email');
+        return new Response('ok');
       }
+      $body = trim($parts[2]);
+    }
 
-      $frontMatterData['title'] = $postTitle;
-      $frontMatterData['date'] = date('Y-m-d H:i:s') . ' UTC';
-      if ($tags)
+    $frontMatterData['title'] = $postTitle;
+    $frontMatterData['date'] = date('Y-m-d H:i:s') . ' UTC';
+    if ($tags)
+    {
+      $frontMatterData['tags'] = $tags;
+    }
+
+    if (stripos($user['github_repo'], 'lyoshenka') === 0)
+    {
+      $frontMatterData['_id_'] = '';
+      for ($i = 0; $i < 16; $i++)
       {
-        $frontMatterData['tags'] = $tags;
+        $frontMatterData['_id_'] .= rand(0, 9);
       }
-
-      if (stripos($user['github_repo'], 'lyoshenka') === 0)
-      {
-        $frontMatterData['_id_'] = '';
-        for ($i = 0; $i < 16; $i++)
-        {
-          $frontMatterData['_id_'] .= rand(0, 9);
-        }
-      }
+    }
 
       $frontMatter = Symfony\Component\Yaml\Yaml::dump($frontMatterData);
 
@@ -189,7 +187,6 @@ function initMainRoutes($app) {
         $app->log('Successfully created post');
         $app['log_event']('post.publish', $postTitle, $user['id']);
         $app['mailer']->sendPublishSuccessEmail($senderEmail, $postTitle);
-        $app->log('Sent publish success email');
       }
       catch (Github\Exception\RuntimeException $e)
       {
@@ -199,7 +196,6 @@ function initMainRoutes($app) {
           $app->log('Post exists for filename "' . $filename . '"');
           $app['log_event']('post.error', $postTitle, $user['id']);
           $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle, 'A post with the same title already exists for today');
-          $app->log('Sent publish error email');
         }
         else
         {
@@ -208,10 +204,8 @@ function initMainRoutes($app) {
           $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle,
             'Got an error from GitHub: "' . $e->getMessage() . '". If this doesn\'t help clear things up, please forward this email to ' . $app['config.support_email']
           );
-          $app->log('Sent publish error email');
         }
       }
-    }
 
     return new Response('ok');
   })

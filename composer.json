@@ -14,7 +14,6 @@
   ],
   "require": {
     "silex/silex": "~1.2",
-    "mandrill/mandrill": "1.0.*",
     "knplabs/github-api": "~1.2",
     "knplabs/console-service-provider": "dev-master",
     "symfony/validator": "~2.3",
