@@ -136,7 +136,7 @@ function initMainRoutes($app) {
 
     if (preg_match('/^(\r\n|\r|\n)*[\t\f\v ]*---/', $postText))
     {
-      $parts = preg_split("/(\r\n|\r|\n)[\t\f\v ]*---[\t\f\v ]*(\r\n|\r|\n)/", "\n".str_replace("---".hex2bin('e2808b')."\n","---\n",$testing), 3); //e2808b = zero-width space
+      $parts = preg_split("/(\r\n|\r|\n)[\t\f\v ]*---[\t\f\v ]*(\r\n|\r|\n)/", "\n".str_replace("---".hex2bin('e2808b')."\n","---\n",$postText), 3); //e2808b = zero-width space
 
       if (count($parts) == 3)
       {
