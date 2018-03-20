@@ -262,6 +262,10 @@ function setupGithubRoutes($app) {
     else
     {
       $userId = $user['id'];
+      $app['pdo']->execute('UPDATE user SET github_token = :token WHERE id = :id', [
+        ':id' => $userId,
+        ':token' => $response['access_token'],
+      ]);
       $existingEmails = array_map(
         function($item) { return $item['email']; },
         (array)$app['pdo']->fetchAssoc('SELECT email FROM email WHERE user_id = ?', $userId)
