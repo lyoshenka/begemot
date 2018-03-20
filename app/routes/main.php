@@ -134,23 +134,26 @@ function initMainRoutes($app) {
     $frontMatterData = [];
     $body = $postText;
 
-    if (strpos($postText, '---') === 0)
+    if (preg_match('/^(\r\n|\r|\n)*[\t\f\v ]*---/', $postText))
     {
       $parts = preg_split("/(\r\n|\r|\n)[\t\f\v ]*---[\t\f\v ]*(\r\n|\r|\n)/", "\n".str_replace("---".hex2bin('e2808b')."\n","---\n",$testing), 3); //e2808b = zero-width space
 
-      try
+      if (count($parts) == 3)
       {
-        $frontMatterData = Symfony\Component\Yaml\Yaml::parse($parts[1]);
+        try
+        {
+          $frontMatterData = Symfony\Component\Yaml\Yaml::parse($parts[1]);
+        }
+        catch (Symfony\Component\Yaml\Exception\ParseException $pe)
+        {
+          $app->log('Parse exception: ' . $pe->__toString());
+          $app['log_event']('post.error', $postTitle, $user['id']);
+          $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle, 'Error parsing YAML frontmatter. ' . $pe->getMessage());
+          $app->log('Sent yaml parse error email');
+          return new Response('ok');
+        }
+        $body = trim($parts[2]);
       }
-      catch (Symfony\Component\Yaml\Exception\ParseException $pe)
-      {
-        $app->log('Parse exception: ' . $pe->__toString());
-        $app['log_event']('post.error', $postTitle, $user['id']);
-        $app['mailer']->sendPublishErrorEmail($senderEmail, $postTitle, 'Error parsing YAML frontmatter. ' . $pe->getMessage());
-        $app->log('Sent yaml parse error email');
-        return new Response('ok');
-      }
-      $body = trim($parts[2]);
     }
 
     $frontMatterData['title'] = $postTitle;
