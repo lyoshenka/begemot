@@ -228,12 +228,29 @@ function setupGithubRoutes($app) {
       return $app->redirect($app->path('home'));
     }
 
-    $user = $app['pdo']->fetchOne('SELECT * FROM user WHERE github_token = :token', [':token' => $response['access_token']]);
+
+    $githubUserInfo = GuzzleHttp\get('https://api.github.com/user', [
+      'headers' => [
+        'Accept' => 'application/json',
+        'Authorization' => 'token ' . $response['access_token'],
+      ],
+    ])->json();
+
+    if (isset($githubUserInfo['message']))
+    {
+      $msg = 'Error from GitHub: ' . $response['message'];
+      $app['monolog']->addError($msg);
+      $app->addFlash('error', $msg . '. Please contact ' . $app['config.support_email'] . ' for assistance.');
+      return $app->redirect($app->path('home'));
+    }
+
+    $user = $app['pdo']->fetchOne('SELECT * FROM user WHERE github_user_id = :id', [':id' => $githubUserInfo['id']]);
     $existingEmails = [];
 
     if (!$user)
     {
-      $app['pdo']->execute('INSERT INTO user SET created_at = :date, github_token = :token, github_token_scope = :scope', [
+      $app['pdo']->execute('INSERT INTO user SET created_at = :date, github_user_id = :id, github_token = :token, github_token_scope = :scope', [
+        ':id' => $githubUserInfo['id'],
         ':date' => date('Y-m-d H:i:s'),
         ':token' => $response['access_token'],
         ':scope' => $response['scope']

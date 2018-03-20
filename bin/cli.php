@@ -33,6 +33,7 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
     $pdo->exec('DROP TABLE IF EXISTS user');
     $pdo->exec("CREATE TABLE `user` (
         `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
+        `github_user_id` bigint(11) unsigned NOT NULL,
         `github_token` varchar(100),
         `github_token_scope` varchar (100),
         `github_repo` varchar(100),
@@ -40,6 +41,7 @@ class InitializeDatabaseCommand extends \Knp\Command\Command {
         `posts_path` varchar(255),
         `created_at` datetime NOT NULL,
         PRIMARY KEY (`id`),
+        UNIQUE KEY github_user_id_idx (github_user_id)
         UNIQUE KEY github_token_idx (github_token)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8"
     );
