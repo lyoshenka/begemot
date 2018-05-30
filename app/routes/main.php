@@ -120,7 +120,7 @@ function initMainRoutes($app) {
     if (!$user)
     {
       $app->log('user not found');
-      continue; // user not found. we could notify them, but dont wanna deal with spam
+      return new Response('ok'); // user not found. we could notify them, but dont wanna deal with spam
     }
 
     $postText = trim($request->get('body-plain'))."\n";
