@@ -176,7 +176,7 @@ function initMainRoutes($app) {
 
       $postText = "---\n" . $frontMatter . "---\n\n" . $body;
 
-      $filename = date('Y-m-d') . '-' . rtrim(preg_replace('/[^a-z0-9]+/', '-', strtolower($postTitle)), '-') . '.md';
+      $filename = date('Y-m-d') . '-' . rtrim(preg_replace('/[^\p{L}\p{N}]+/', '-', strtolower($postTitle)), '-') . '.md';
 
       list($githubUsername,$repo) = explode('/', $user['github_repo']);
       $committer = ['name' => 'Begemot', 'email' => $senderEmail];
