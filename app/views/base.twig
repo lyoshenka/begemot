@@ -38,6 +38,10 @@
 
       <div class="grid">
         <div class="grid-item">
+          <div class="well info-box">
+            I have been focusing on other projects, and no longer maintain Begemot. If you're interested in supporting or improving this app, <a href="mailto:{{ app["config.support_email"] }}">email me</a>.
+          </div>
+
           {% for noticeType in ['error', 'warning', 'success', 'info'] %}
             {% for flashMessage in app.session.flashbag.get(noticeType) %}
               <div class="well {{ noticeType }}-box">
